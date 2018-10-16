@@ -1,1 +1,2 @@
+"src/main/Worker": include
 <*.ml> or "prog.byte": package(owl), package(num)
