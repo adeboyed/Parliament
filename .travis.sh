@@ -1,10 +1,10 @@
 set -e
 
 OPAM_DEPENDS="ocamlfind ounit re"
-OCAML_VERSION=4.07.0
-OPAM_VERSION=2.0.0
+OCAML_VERSION=4.02.3
+OPAM_VERSION=1.2.2
 
-echo "yes" | sudo add-apt-repository ppa:ocaml47+opam20
+echo "yes" | sudo add-apt-repository ppa:ocaml42+opam12
 sudo apt-get update -qq
 sudo apt-get install -qq ocaml ocaml-native-compilers camlp4-extra opam
 export OPAMYES=1
