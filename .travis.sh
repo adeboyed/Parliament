@@ -1,6 +1,6 @@
 set -e
 
-OPAM_DEPENDS="ocamlfind owl ounit re"
+OPAM_DEPENDS="ocamlfind owl ounit"
 
 echo "yes" | sudo add-apt-repository ppa:avsm/ocaml42+opam12
 sudo apt-get update -qq
