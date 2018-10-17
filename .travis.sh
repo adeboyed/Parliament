@@ -4,7 +4,7 @@ OPAM_DEPENDS="ocamlfind owl ounit re"
 
 echo "yes" | sudo add-apt-repository ppa:avsm/ocaml42+opam12
 sudo apt-get update -qq
-sudo apt-get install -qq ocaml ocaml-native-compilers camlp4-extra opam
+sudo apt-get install -qq ocaml-nox ocaml-native-compilers camlp4-extra opam gsl-bin
 export OPAMYES=1
 export OPAMVERBOSE=1
 echo OCaml version
