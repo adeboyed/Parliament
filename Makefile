@@ -12,8 +12,7 @@ LIBS=owl
 DOCFILE=Parliament
 
 # Where everything is stored
-SRCDIR=src
-DOCDIR=docs
+SRCDIR=src/main
 BUILDDIR=_build
 
 # Path separator for the current platform.
@@ -22,15 +21,10 @@ BUILDDIR=_build
 # Uncomment the next line for UNIX platforms.
 /=/
 
-# Symbolic links created by this Makefile (DO NOT EDIT).
-SYMLINKS=$(PROGRAM) $(PROGRAM).byte $(DOCDIR)
-
 all: byte native
-docs:
-	$(BUILDER) $(SRCDIR)$/$(DOCFILE).docdir/index.html -I $(SRCDIR) -build-dir $(BUILDDIR)
 byte:
-	$(BUILDER).byte $(SRCDIR)$/$(PROGRAM).byte -use-ocamlfind
+	$(BUILDER).byte $(SRCDIR)$/$(PROGRAM).cma -use-ocamlfind
 native:
-	$(BUILDER).native $(SRCDIR)$/$(PROGRAM).native -use-ocamlfind
+	$(BUILDER).native $(SRCDIR)$/$(PROGRAM).cmxa -use-ocamlfind
 clean: 
 	$(BUILDER) -clean -build-dir $(BUILDDIR)

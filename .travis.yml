@@ -1,14 +1,13 @@
 language: c
 sudo: required
-
-install: 
-  - wget https://raw.githubusercontent.com/ocaml/ocaml-ci-scripts/master/.travis-opam.sh
-
-script: 
-  - bash -ex .travis-opam.sh
-
-env:
-  - OCAML_VERSION=4.07
-
+script:
+- bash -ex .travis.sh
 os:
-  - linux
+- linux
+deploy:
+  provider: releases
+  api_key:
+    secure: cYtbDIt1q/ed158bqEL7yf0A1eRiPrJTpBCX1/jC1gKqkg9g24pyiyaKxtJS+PRD1uuv8DBnknkZFrVIpB8ftes5YqvZyppT3PaKWMpfxbNpY95DcWhWSqsr1094OOzGbuyXCByMOVHMmIIFq2u65BgDazQ47ZSxekimgZVBjoOPVXC2lkyCWrQPlw9ZU8lG1FZ2ES0OevUnnDewcSJIxDp3nNNOZSUZFMK5NWu3yM+E50y6blZd2vSb238m0wMp5r1oaovGy8zr+/YGi36iFPnNSzD3yPfXFRNnnEi806pmA3gedB8pC1TrAP0qrPFrAnKPSTDrdALTzj6SKUkXfr/JaDIznlNJaaZB8yqx1Hc5LFmBqDbBwjrKbQA0eYii/E+FNtACppGeDUD2JqA9rfVHHqwXaSCWqCERw1U+aqr44JfuiOmqXIjnY0LkPTqYprcWZpqUhBEctcNUx0B6NwrFKhpOiTdySaCwx42gqwBYZm9T9rkr9IUjs88BMbPe1qacw3utfzUbGS663/f5ptX+BShwBWV1zMMqeEWlyfXGIVWD2KiNl2GIXSVdASx/DdwBVqhc9Smdm8WWiZDy+XECDXTFmN7N935lfhY0XM3T5VYWfHjg+/QXuGMCpiIwYkH0ChLdMRCGKojwhKD7OWbmvPTDKBBAu9A41KGF1iI=
+  file: _build/src/main/Parliament.cmx
+  on:
+    branch: master
