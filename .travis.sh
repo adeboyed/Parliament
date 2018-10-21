@@ -1,6 +1,6 @@
 set -e
 
-OPAM_DEPENDS="ocamlfind ounit"
+OPAM_DEPENDS="ocamlfind ounit ocaml-protoc"
 
 echo "yes" | sudo add-apt-repository ppa:avsm/ocaml42+opam12
 sudo apt-get update -qq
