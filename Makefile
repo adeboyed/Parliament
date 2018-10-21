@@ -3,17 +3,13 @@ PROGRAM=Parliament
 # OCaml build tool.
 BUILDER=ocamlbuild
 
-# OCaml libraries outside of the stdlib.
-LIBS=owl
-
-# $(DOCFILE).odocl must exist in $(SRCDIR) and 
-# contain a list of module names (not file names) 
-# to be documented.
-DOCFILE=Parliament
-
 # Where everything is stored
 SRCDIR=src/main
 BUILDDIR=_build
+
+# Where the protobuf files are stored 
+PROTO_SRC_FILES=src/proto/*.proto
+PROTO_DEST_DIR=src/main/Core/Protobuf
 
 # Path separator for the current platform.
 # Uncomment the next line for Windows platforms.
@@ -23,8 +19,10 @@ BUILDDIR=_build
 
 all: byte native
 byte:
+	scripts/generate_proto.sh $(PROTO_DEST_DIR) $(PROTO_SRC_FILES)
 	$(BUILDER).byte $(SRCDIR)$/$(PROGRAM).cma -use-ocamlfind
 native:
+	scripts/generate_proto.sh $(PROTO_DEST_DIR) $(PROTO_SRC_FILES)
 	$(BUILDER).native $(SRCDIR)$/$(PROGRAM).cmxa -use-ocamlfind
 clean: 
 	$(BUILDER) -clean -build-dir $(BUILDDIR)

@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+/*
+    Actions that a job can do 
+
+    data_loc:
+        - Needs to be user_id unique (so you shouldn't reuse a data_loc for different pieces of data)
+            - You won't be able to predict when the scheduler will run a particular job.
+        - This location will store marshalled OCaml data structures
+
+*/
+
+message InputAction {
+    bytes data_loc_in = 1;
+    // This is marshalled data that is going to do passed directly to the user.
+}
+
+message MapAction {
+    repeated int32 data_loc_in = 1;
+    // Location(s) of where the input data for the job is
+    
+    string function_name = 2;
+    // This is the name of the function to run.
+
+    int32 data_loc_out = 3;
+    // Location of where the output data should be stored when it's completed
+}
+
+message OutputAction {
+    int32 data_out = 3;
+}
+
+message Job {
+    int32 job_id = 1;
+    //Needs too be user_id unique, so you can track the status of a job.
+
+    oneof action {
+        InputAction input = 4;
+        MapAction map = 5;
+        OutputAction output = 6;
+    }
+}
+
+message JobSubmission {
+    string user_id = 1;
+    // user_id from ConnectionResponse
+
+    string function_name = 2;
+    // name of pre-loaded function in the cluster.
+
+    repeated Job jobs = 3;
+    // Already paritioned jobs.
+}
+
+message JobSubmissionResponse {
+    bool job_accepted = 1;
+    // This indicates whether the job has been accepted by the cluster
+}

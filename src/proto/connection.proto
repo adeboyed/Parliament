@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+import "src/proto/data.proto";
+import "src/proto/job.proto";
+import "src/proto/status.proto";
+
+message ConnectionRequest {
+    int32 user_id = 1;
+    enum Status {
+        HEARTBEAT = 0;
+        CLOSE_CONNECTION = 1;
+    }
+    Status status = 2;
+}
+
+message SingleRequest {
+    oneof request {
+        ConnectionRequest connection_request = 1;
+        JobSubmission job_submission = 2;
+        DataRetrievalRequest data_retrieval_request = 3;
+        JobStatusRequest job_status_request = 4;
+    }
+}
