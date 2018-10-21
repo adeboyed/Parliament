@@ -12,7 +12,8 @@
 _build/
 
 #Protobuf binaries
-src/main/Core/Protobuf
+src/main/Core/Protobuf/*.ml
+src/main/Core/Protobuf/*.mli
 
 # ocamlbuild targets
 *.byte
