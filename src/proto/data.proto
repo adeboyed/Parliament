@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message DataRetrievalRequest {
+    int32 job_id = 1;
+}
+
+message DataRetrievalResponse {
+    repeated bytes bytes = 1;
+}
