@@ -11,6 +11,8 @@
 # ocamlbuild working directory
 _build/
 
+#Protobuf binaries
+
 # ocamlbuild targets
 *.byte
 *.native
