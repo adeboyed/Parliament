@@ -1,0 +1,21 @@
+(rule
+ (targets connection_pb.ml connection_types.ml create_connection_pb.ml data_pb.ml data_types.ml job_pb.ml job_types.ml status_pb.ml status_types.ml )
+ (action  (run %{gen} -o %{targets})))
+
+(library
+ (name        parliament)
+  (public_name parliament)
+  (modules )
+  (libraries core ))
+
+(library
+ (name			worker)
+  (public_name	parliament.worker)
+  (modules worker)
+  (libraries core parli_core))
+
+(library
+ (name        door)
+  (public_name parliament.door)
+  (modules door connection)
+  (libraries core parli_core parli_core_proto))

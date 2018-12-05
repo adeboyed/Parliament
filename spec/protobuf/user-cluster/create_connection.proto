@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+import "data.proto";
+import "job.proto";
+import "status.proto";
+
+message CreateConnectionRequest {
+    string authentication = 1; 
+    // Currently not implemented but there for future 
+}
+
+message CreateConnectionResponse {
+    string user_id = 1; 
+    /* 
+        This is the identifer given to user, which they use for further requests.
+        This value is unspecfied if connection_accepted = false 
+    */
+    bool connection_accepted = 2;
+    // If true, the cluster has accepted the connection, however no requirement for the cluster to accept
+}

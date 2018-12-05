@@ -1,6 +1,6 @@
 set -e
 
-OPAM_DEPENDS="ocamlfind ounit ocaml-protoc"
+OPAM_DEPENDS="ocamlfind ounit ocaml-protoc core"
 
 echo "yes" | sudo add-apt-repository ppa:avsm/ocaml42+opam12
 sudo apt-get update -qq
@@ -16,5 +16,6 @@ opam --git-version
 opam init 
 opam install ${OPAM_DEPENDS}
 eval `opam config env`
-make
-# make test
+
+dune build
+dune runtest

@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+// WORKER -> MASTER
+message WorkerConnectionRequest {
+    string authentication = 1; 
+    // Currently not implemented but there for future 
+    bool single_job_worker = 2;
+    int32 no_of_cores = 3;
+}
+
+// MASTER -> WORKER
+message WorkerConnectionResponse {
+    string worker_id = 1; 
+    /* 
+        This is the identifer given to user, which they use for further requests.
+        This value is unspecfied if connection_accepted = false 
+    */
+    bool connection_accepted = 2;
+    // If true, the cluster has accepted the connection, however no requirement for the cluster to accept
+}
+
+// MASTER -> WORKER
+message HeartbeatRequest {
+    string worker_id = 1;
+    // Currently not implemented but there for future
+}
+
+// WORKER -> MASTER
+message HeartbeatResponse {
+    enum HeartbeatStatus {
+        AWAITING_JOB = 1;
+        PROCESSING_JOB = 2;
+        ERRORED_JOB = 3;
+        CANCELLED_JOB = 4;
+    }
+    HeartbeatStatus status = 1;
+    int32 job_progress = 2;
+}
+
+// MASTER -> WORKER
+// Responds with a HeartbeatResponse
+message JobSubmissionRequest {
+    string function_name = 1;
+    bytes data_in = 2;
+}
+
+
+// WORKER -> MASTER
+message JobStatusRequest {
+    enum JobStatus {
+        JOB_FINISHED = 1;
+        JOB_ERRORED = 2;
+    }
+    JobStatus status = 1;
+    string std_out = 2;
+    string std_err = 3;
+    bytes data_in = 4;
+}
+
+// MASTER -> WORKER
+message JobCancellationRequest {
+
+}
+
+message SingleWorkerMessage {
+    oneof request {
+        WorkerConnectionRequest connection_request = 1;
+        HeartbeatResponse heartbeat_response = 2;
+        JobStatusRequest status_request = 3;
+    }
+}
+
+message SingleServerMessage {
+    oneof response {
+        WorkerConnectionResponse connection_response = 1;
+        HeartbeatRequest heartbeat_request = 2;
+        JobSubmissionRequest submission_response = 3;
+        JobCancellationRequest cancellation_request = 4;
+    }
+}
