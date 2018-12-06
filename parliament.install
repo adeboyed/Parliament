@@ -78,15 +78,15 @@ lib: [
   "_build/install/default/lib/parliament/core/protobuf/status_pb.mli" {"core/protobuf/status_pb.mli"}
   "_build/install/default/lib/parliament/core/protobuf/status_types.ml" {"core/protobuf/status_types.ml"}
   "_build/install/default/lib/parliament/core/protobuf/status_types.mli" {"core/protobuf/status_types.mli"}
-  "_build/install/default/lib/parliament/door/Connection.ml" {"door/Connection.ml"}
-  "_build/install/default/lib/parliament/door/Door.cmi" {"door/Door.cmi"}
-  "_build/install/default/lib/parliament/door/Door.cmt" {"door/Door.cmt"}
-  "_build/install/default/lib/parliament/door/Door.cmx" {"door/Door.cmx"}
-  "_build/install/default/lib/parliament/door/Door.ml" {"door/Door.ml"}
+  "_build/install/default/lib/parliament/door/connection.ml" {"door/connection.ml"}
   "_build/install/default/lib/parliament/door/door.a" {"door/door.a"}
   "_build/install/default/lib/parliament/door/door.cma" {"door/door.cma"}
+  "_build/install/default/lib/parliament/door/door.cmi" {"door/door.cmi"}
+  "_build/install/default/lib/parliament/door/door.cmt" {"door/door.cmt"}
+  "_build/install/default/lib/parliament/door/door.cmx" {"door/door.cmx"}
   "_build/install/default/lib/parliament/door/door.cmxa" {"door/door.cmxa"}
   "_build/install/default/lib/parliament/door/door.cmxs" {"door/door.cmxs"}
+  "_build/install/default/lib/parliament/door/door.ml" {"door/door.ml"}
   "_build/install/default/lib/parliament/door/door__.cmi" {"door/door__.cmi"}
   "_build/install/default/lib/parliament/door/door__.cmt" {"door/door__.cmt"}
   "_build/install/default/lib/parliament/door/door__.cmx" {"door/door__.cmx"}
@@ -94,7 +94,11 @@ lib: [
   "_build/install/default/lib/parliament/door/door__Connection.cmi" {"door/door__Connection.cmi"}
   "_build/install/default/lib/parliament/door/door__Connection.cmt" {"door/door__Connection.cmt"}
   "_build/install/default/lib/parliament/door/door__Connection.cmx" {"door/door__Connection.cmx"}
+  "_build/install/default/lib/parliament/door/door__Test_module.cmi" {"door/door__Test_module.cmi"}
+  "_build/install/default/lib/parliament/door/door__Test_module.cmt" {"door/door__Test_module.cmt"}
+  "_build/install/default/lib/parliament/door/door__Test_module.cmx" {"door/door__Test_module.cmx"}
   "_build/install/default/lib/parliament/door/parliament.door.dune" {"door/parliament.door.dune"}
+  "_build/install/default/lib/parliament/door/test_module.ml" {"door/test_module.ml"}
   "_build/install/default/lib/parliament/opam" {"opam"}
   "_build/install/default/lib/parliament/parliament.a" {"parliament.a"}
   "_build/install/default/lib/parliament/parliament.cma" {"parliament.cma"}
@@ -105,15 +109,15 @@ lib: [
   "_build/install/default/lib/parliament/parliament.cmxs" {"parliament.cmxs"}
   "_build/install/default/lib/parliament/parliament.dune" {"parliament.dune"}
   "_build/install/default/lib/parliament/parliament.ml" {"parliament.ml"}
-  "_build/install/default/lib/parliament/worker/Worker.cmi" {"worker/Worker.cmi"}
-  "_build/install/default/lib/parliament/worker/Worker.cmt" {"worker/Worker.cmt"}
-  "_build/install/default/lib/parliament/worker/Worker.cmx" {"worker/Worker.cmx"}
-  "_build/install/default/lib/parliament/worker/Worker.ml" {"worker/Worker.ml"}
   "_build/install/default/lib/parliament/worker/parliament.worker.dune" {"worker/parliament.worker.dune"}
   "_build/install/default/lib/parliament/worker/worker.a" {"worker/worker.a"}
   "_build/install/default/lib/parliament/worker/worker.cma" {"worker/worker.cma"}
+  "_build/install/default/lib/parliament/worker/worker.cmi" {"worker/worker.cmi"}
+  "_build/install/default/lib/parliament/worker/worker.cmt" {"worker/worker.cmt"}
+  "_build/install/default/lib/parliament/worker/worker.cmx" {"worker/worker.cmx"}
   "_build/install/default/lib/parliament/worker/worker.cmxa" {"worker/worker.cmxa"}
   "_build/install/default/lib/parliament/worker/worker.cmxs" {"worker/worker.cmxs"}
+  "_build/install/default/lib/parliament/worker/worker.ml" {"worker/worker.ml"}
 ]
 doc: [
   "_build/install/default/doc/parliament/README.md"

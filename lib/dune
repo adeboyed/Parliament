@@ -17,5 +17,5 @@
 (library
  (name        door)
   (public_name parliament.door)
-  (modules door connection)
+  (modules test_module connection door)
   (libraries core parli_core parli_core_proto))

@@ -1,4 +1,5 @@
 open Unix
+(* open Test *)
 
 (* Helper functions *)
 let open_connection (sockaddr:sockaddr) =
@@ -29,9 +30,25 @@ let send_to_master client_fun (server: string) (port:int) =
 
 (* Actual useful functions *)
 
-(* let connection_function (auth:string) (ic:in_channel) (oc:out_channel) = 5
+let create_connection_request_function (auth:string) (ic:in_channel) (oc:out_channel) =
+  let request = Parli_core_proto.Create_connection_types.({ 
+    authentication = auth
+  }) in 
+  let encoder = Pbrt.Encoder.create ()   (* Create a Protobuf encoder and encode value *)
+  in
+  Parli_core_proto.Create_connection_pb.encode_create_connection_request request encoder; 
+    output_bytes oc (Pbrt.Encoder.to_bytes encoder);
+    close_out oc;
+  let bytes = 
+      let len = in_channel_length ic in 
+      let bytes = Bytes.create len in 
+      really_input ic bytes 0 len; 
+      close_in ic; 
+      bytes 
+    in 
+    Parli_core_proto.Create_connection_pb.decode_create_connection_response (Pbrt.Decoder.of_bytes bytes)
 
 let send_connection_request (hostname: string) (port: int) (auth: string)  =
-  let func = connection_function 
+  let func = create_connection_request_function
   in
-    send_to_master(func(auth)) (hostname) (port) *)
+    send_to_master(func(auth)) (hostname) (port)
