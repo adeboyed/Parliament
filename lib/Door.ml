@@ -12,12 +12,48 @@ type connection_status = Unconnected
   | Connected
   | ConnectedRejection
 
-(* class job =
-  object
+  module Workload =
+  struct
+    type jobType = VariableOutSingleIn | SingleInSingleOut | VariableInSingleOut
+    type job = {
+      jobType: jobType;
+      functionName: string
+    }
+    type 'a workload = {
+      input: 'a ;
+      jobs : job list ;
+    }
+    let input (x: 'a) = { 
+      input = x ;
+      jobs = [] ;
+    }
+    let variableOutSingleIn (wl: 'a workload) (name:string) = {
+      input = wl.input;
+      jobs = {
+        jobType = VariableOutSingleIn ; 
+        functionName = name ;
+      }::wl.jobs ;
+    }
 
-end *)
+    let singleInsingleOut (wl: 'a workload) (name:string) = {
+      input = wl.input;
+      jobs = {
+        jobType = SingleInSingleOut ; 
+        functionName = name ;
+      }::wl.jobs ;
+    }
 
-class parliament_connection = 
+    let variableInSingleOut (wl: 'a workload) (name:string) = {
+      input = wl.input;
+      jobs = {
+        jobType = VariableInSingleOut ; 
+        functionName = name ;
+      }::wl.jobs ;
+    }
+
+  end
+
+class parliament_context = 
   object
     val mutable hostname: string = ""
     val mutable port: int = 0
@@ -36,4 +72,10 @@ class parliament_connection =
           | false -> 
             (connection_status <- Unconnected;
             false)
-end
+
+    method submit(wl: 'a workload) = 5
+  end
+
+
+
+
