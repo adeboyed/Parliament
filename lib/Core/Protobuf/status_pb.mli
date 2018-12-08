@@ -1,4 +1,4 @@
-(** status.proto Binary Encoding *)
+(** Status.proto Binary Encoding *)
 
 
 (** {2 Protobuf Encoding} *)

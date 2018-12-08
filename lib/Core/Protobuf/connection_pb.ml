@@ -58,6 +58,21 @@ let rec decode_single_request d =
   in
   loop ()
 
+let rec decode_single_response d = 
+  let rec loop () = 
+    let ret:Connection_types.single_response = match Pbrt.Decoder.key d with
+      | None -> Pbrt.Decoder.malformed_variant "single_response"
+      | Some (1, _) -> Connection_types.Job_status_response (Status_pb.decode_job_status_reponse (Pbrt.Decoder.nested d))
+      | Some (2, _) -> Connection_types.Data_retrieval_response (Data_pb.decode_data_retrieval_response (Pbrt.Decoder.nested d))
+      | Some (n, payload_kind) -> (
+        Pbrt.Decoder.skip d payload_kind; 
+        loop () 
+      )
+    in
+    ret
+  in
+  loop ()
+
 let rec encode_connection_request_status (v:Connection_types.connection_request_status) encoder =
   match v with
   | Connection_types.Heartbeat -> Pbrt.Encoder.int_as_varint (0) encoder
@@ -84,4 +99,14 @@ let rec encode_single_request (v:Connection_types.single_request) encoder =
   | Connection_types.Job_status_request x ->
     Pbrt.Encoder.key (4, Pbrt.Bytes) encoder; 
     Pbrt.Encoder.nested (Status_pb.encode_job_status_request x) encoder;
+  end
+
+let rec encode_single_response (v:Connection_types.single_response) encoder = 
+  begin match v with
+  | Connection_types.Job_status_response x ->
+    Pbrt.Encoder.key (1, Pbrt.Bytes) encoder; 
+    Pbrt.Encoder.nested (Status_pb.encode_job_status_reponse x) encoder;
+  | Connection_types.Data_retrieval_response x ->
+    Pbrt.Encoder.key (2, Pbrt.Bytes) encoder; 
+    Pbrt.Encoder.nested (Data_pb.encode_data_retrieval_response x) encoder;
   end

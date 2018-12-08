@@ -16,6 +16,10 @@ type single_request =
   | Data_retrieval_request of Data_types.data_retrieval_request
   | Job_status_request of Status_types.job_status_request
 
+type single_response =
+  | Job_status_response of Status_types.job_status_reponse
+  | Data_retrieval_response of Data_types.data_retrieval_response
+
 let rec default_connection_request_status () = (Heartbeat:connection_request_status)
 
 let rec default_connection_request 
@@ -27,3 +31,5 @@ let rec default_connection_request
 }
 
 let rec default_single_request () : single_request = Connection_request (default_connection_request ())
+
+let rec default_single_response () : single_response = Job_status_response (Status_types.default_job_status_reponse ())

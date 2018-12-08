@@ -1,4 +1,4 @@
-(** connection.proto Binary Encoding *)
+(** Connection.proto Binary Encoding *)
 
 
 (** {2 Protobuf Encoding} *)
@@ -12,6 +12,9 @@ val encode_connection_request : Connection_types.connection_request -> Pbrt.Enco
 val encode_single_request : Connection_types.single_request -> Pbrt.Encoder.t -> unit
 (** [encode_single_request v encoder] encodes [v] with the given [encoder] *)
 
+val encode_single_response : Connection_types.single_response -> Pbrt.Encoder.t -> unit
+(** [encode_single_response v encoder] encodes [v] with the given [encoder] *)
+
 
 (** {2 Protobuf Decoding} *)
 
@@ -23,3 +26,6 @@ val decode_connection_request : Pbrt.Decoder.t -> Connection_types.connection_re
 
 val decode_single_request : Pbrt.Decoder.t -> Connection_types.single_request
 (** [decode_single_request decoder] decodes a [single_request] value from [decoder] *)
+
+val decode_single_response : Pbrt.Decoder.t -> Connection_types.single_response
+(** [decode_single_response decoder] decodes a [single_response] value from [decoder] *)

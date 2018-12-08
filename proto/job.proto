@@ -1,12 +1,11 @@
 syntax = "proto3";
 
 /*
-    Actions that a job can do 
+    Types of jobs:
+        SingleInSingleOut: Map Job
+        SingleInVariableOut: Split Job
+        VariableInSingleOut: Reduce Job
 
-    data_loc:
-        - Needs to be user_id unique (so you shouldn't reuse a data_loc for different pieces of data)
-            - You won't be able to predict when the scheduler will run a particular job.
-        - This location will store marshalled OCaml data structures
 
 */
 
@@ -16,18 +15,19 @@ message InputAction {
 }
 
 message MapAction {
-    repeated int32 data_loc_in = 1;
-    // Location(s) of where the input data for the job is
+    enum MapType {
+        SINGLE_IN_VARIABLE_OUT = 0;
+        SINGLE_IN_SINGLE_OUT = 1;
+        VARIABLE_IN_VARIABLE_OUT = 2;
+    }
+    MapType mapType = 1;
     
-    string function_name = 2;
-    // This is the name of the function to run.
-
-    int32 data_loc_out = 3;
-    // Location of where the output data should be stored when it's completed
+    int32 job_id_in = 2;
+    string function_name = 3;
 }
 
 message OutputAction {
-    int32 data_out = 3;
+    int32 job_id_out = 3;
 }
 
 message Job {

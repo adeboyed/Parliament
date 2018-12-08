@@ -1,4 +1,4 @@
-(** create_connection.proto Binary Encoding *)
+(** Create_connection.proto Binary Encoding *)
 
 
 (** {2 Protobuf Encoding} *)

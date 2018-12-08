@@ -1,4 +1,4 @@
-(** job.proto Types *)
+(** Job.proto Types *)
 
 
 
@@ -8,14 +8,19 @@ type input_action = {
   data_loc_in : bytes;
 }
 
+type map_action_map_type =
+  | Single_in_variable_out 
+  | Single_in_single_out 
+  | Variable_in_variable_out 
+
 type map_action = {
-  data_loc_in : int32 list;
+  map_type : map_action_map_type;
+  job_id_in : int32;
   function_name : string;
-  data_loc_out : int32;
 }
 
 type output_action = {
-  data_out : int32;
+  job_id_out : int32;
 }
 
 type job_action =
@@ -30,7 +35,6 @@ and job = {
 
 type job_submission = {
   user_id : string;
-  function_name : string;
   jobs : job list;
 }
 
@@ -47,16 +51,19 @@ val default_input_action :
   input_action
 (** [default_input_action ()] is the default value for type [input_action] *)
 
+val default_map_action_map_type : unit -> map_action_map_type
+(** [default_map_action_map_type ()] is the default value for type [map_action_map_type] *)
+
 val default_map_action : 
-  ?data_loc_in:int32 list ->
+  ?map_type:map_action_map_type ->
+  ?job_id_in:int32 ->
   ?function_name:string ->
-  ?data_loc_out:int32 ->
   unit ->
   map_action
 (** [default_map_action ()] is the default value for type [map_action] *)
 
 val default_output_action : 
-  ?data_out:int32 ->
+  ?job_id_out:int32 ->
   unit ->
   output_action
 (** [default_output_action ()] is the default value for type [output_action] *)
@@ -73,7 +80,6 @@ val default_job :
 
 val default_job_submission : 
   ?user_id:string ->
-  ?function_name:string ->
   ?jobs:job list ->
   unit ->
   job_submission

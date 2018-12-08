@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-import "src/proto/data.proto";
-import "src/proto/job.proto";
-import "src/proto/status.proto";
+import "Data.proto";
+import "Job.proto";
+import "Status.proto";
 
 message ConnectionRequest {
     int32 user_id = 1;
@@ -19,5 +19,12 @@ message SingleRequest {
         JobSubmission job_submission = 2;
         DataRetrievalRequest data_retrieval_request = 3;
         JobStatusRequest job_status_request = 4;
+    }
+}
+
+message SingleResponse {
+    oneof response {
+        JobStatusReponse job_status_response = 1;
+        DataRetrievalResponse data_retrieval_response = 2;
     }
 }

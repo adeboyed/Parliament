@@ -1,4 +1,4 @@
-(** status.proto Types *)
+(** Status.proto Types *)
 
 
 

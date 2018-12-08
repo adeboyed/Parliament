@@ -1,10 +1,13 @@
-(** job.proto Binary Encoding *)
+(** Job.proto Binary Encoding *)
 
 
 (** {2 Protobuf Encoding} *)
 
 val encode_input_action : Job_types.input_action -> Pbrt.Encoder.t -> unit
 (** [encode_input_action v encoder] encodes [v] with the given [encoder] *)
+
+val encode_map_action_map_type : Job_types.map_action_map_type -> Pbrt.Encoder.t -> unit
+(** [encode_map_action_map_type v encoder] encodes [v] with the given [encoder] *)
 
 val encode_map_action : Job_types.map_action -> Pbrt.Encoder.t -> unit
 (** [encode_map_action v encoder] encodes [v] with the given [encoder] *)
@@ -29,6 +32,9 @@ val encode_job_submission_response : Job_types.job_submission_response -> Pbrt.E
 
 val decode_input_action : Pbrt.Decoder.t -> Job_types.input_action
 (** [decode_input_action decoder] decodes a [input_action] value from [decoder] *)
+
+val decode_map_action_map_type : Pbrt.Decoder.t -> Job_types.map_action_map_type
+(** [decode_map_action_map_type decoder] decodes a [map_action_map_type] value from [decoder] *)
 
 val decode_map_action : Pbrt.Decoder.t -> Job_types.map_action
 (** [decode_map_action decoder] decodes a [map_action] value from [decoder] *)

@@ -1,4 +1,4 @@
-(** data.proto Binary Encoding *)
+(** Data.proto Binary Encoding *)
 
 
 (** {2 Protobuf Encoding} *)

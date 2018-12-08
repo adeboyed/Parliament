@@ -1,4 +1,4 @@
-(** data.proto Types *)
+(** Data.proto Types *)
 
 
 

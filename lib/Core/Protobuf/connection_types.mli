@@ -1,4 +1,4 @@
-(** connection.proto Types *)
+(** Connection.proto Types *)
 
 
 
@@ -19,6 +19,10 @@ type single_request =
   | Data_retrieval_request of Data_types.data_retrieval_request
   | Job_status_request of Status_types.job_status_request
 
+type single_response =
+  | Job_status_response of Status_types.job_status_reponse
+  | Data_retrieval_response of Data_types.data_retrieval_response
+
 
 (** {2 Default values} *)
 
@@ -34,3 +38,6 @@ val default_connection_request :
 
 val default_single_request : unit -> single_request
 (** [default_single_request ()] is the default value for type [single_request] *)
+
+val default_single_response : unit -> single_response
+(** [default_single_response ()] is the default value for type [single_response] *)

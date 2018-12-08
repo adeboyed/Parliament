@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-import "src/proto/data.proto";
-import "src/proto/job.proto";
-import "src/proto/status.proto";
+import "Data.proto";
+import "Job.proto";
+import "Status.proto";
 
 message CreateConnectionRequest {
     string authentication = 2; 
