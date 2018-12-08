@@ -113,20 +113,24 @@ module Workload =
       }) in
       let rec build_jobs (acc) (id) = function 
         | [] -> List.rev(acc)
-        | h::tail -> build_jobs (build_job(h)::acc) (id+1) (tail) in
+        | h::tail -> build_jobs ((build_job(h) (id))::acc) (Int32.add Int32.one id) (tail) in
 
       input_job::(build_jobs ([]) (starting_id) (wl.jobs))
 
     let submit (wl: 'a workload) (ctx: parliament_context) =
-      let user_id, counter = ctx#start_submission in
+      let job_count = Int32.add Int32.one (Int32.of_int (List.length wl.jobs)) in
+      let user_id, counter = ctx#submit_job job_count in
+      Util.info_print("Submitting " ^ (string_of_int (Int32.to_int job_count)) ^ " jobs to the cluster");
       let jobs = _build(wl) (counter) in
       let single_request = Job_submission(Parli_core_proto.Job_types.({
           user_id = user_id;
           jobs = jobs;
         })
       ) in
-      let response = Connection.send_single_request(single_request) (ctx#hostname) (ctx#port) in 
-        5
+      let single_response = Connection.send_single_request(single_request) (ctx#hostname) (ctx#port) in 
+      match single_response with
+      | Job_submission_response(response) -> response.job_accepted
+      | _ -> (Util.error_print("Recieved a response from server not of type job_submission_response"); false)
 
   end
 
