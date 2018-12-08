@@ -1,6 +1,12 @@
 
-
 let debug = true
+
+(* RANDOM FUNCTIONS *)
+
+let rec range i j = if i > j then [] else i :: (range (i+1) j)
+let range (i:int32) (j:int32) = range(Int32.to_int i) (Int32.to_int j)
+
+(* PRINTING *)
 
 let info_print (str:string) = Printf.printf "[PARLIAMENT] %s \n" str
 

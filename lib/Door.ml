@@ -10,44 +10,6 @@ open Parli_core_proto.Connection_types
 
 (* Types *)
 
-type connection_status = Unconnected
-  | ConnectionPending
-  | Connected
-  | ConnectedRejection
-
-class parliament_context = 
-  object
-    val mutable hostname: string = ""
-    val mutable port : int = 0
-    val mutable connection_status : connection_status = Unconnected
-    val mutable user_id : string = ""
-
-    val mutable job_id_counter : int32 = Int32.one;
-
-    method connnect(hn:string) (pt:int) (authentication:string) = 
-      let response = Connection.send_connection_request(hn) (pt) (authentication) in
-      match response.connection_accepted with
-          | true -> 
-            (hostname <- hn;
-            port <- pt;
-            connection_status <- Connected;
-            user_id <- response.user_id;
-            true)
-          | false -> 
-            (connection_status <- Unconnected;
-            false)
-
-    method hostname = hostname
-    method port = port
-          
-    method submit_job (job_count : int32) =
-      let old_count = job_id_counter in
-      job_id_counter <- Int32.add job_id_counter job_count;
-      (user_id, old_count)
-    
-  end
-
-
 module Workload =
   struct
     type jobType = SingleInVariableOut | SingleInSingleOut | VariableInSingleOut
@@ -87,7 +49,7 @@ module Workload =
       }::wl.jobs ;
     }
 
-    let _build (wl: 'a workload) (starting_id: int32) = 
+    let build (wl: 'a workload) (starting_id: int32) = 
       let input_bytes = Marshal.to_bytes(wl.input) ([Compat_32]) in
       let input_job = Parli_core_proto.Job_types.({
         job_id = starting_id;
@@ -117,22 +79,65 @@ module Workload =
 
       input_job::(build_jobs ([]) (starting_id) (wl.jobs))
 
-    let submit (wl: 'a workload) (ctx: parliament_context) =
-      let job_count = Int32.add Int32.one (Int32.of_int (List.length wl.jobs)) in
-      let user_id, counter = ctx#submit_job job_count in
-      Util.info_print("Submitting " ^ (string_of_int (Int32.to_int job_count)) ^ " jobs to the cluster");
-      let jobs = _build(wl) (counter) in
-      let single_request = Job_submission(Parli_core_proto.Job_types.({
-          user_id = user_id;
-          jobs = jobs;
-        })
-      ) in
-      let single_response = Connection.send_single_request(single_request) (ctx#hostname) (ctx#port) in 
-      match single_response with
-      | Job_submission_response(response) -> response.job_accepted
-      | _ -> (Util.error_print("Recieved a response from server not of type job_submission_response"); false)
-
   end
 
+  module Context =
+  struct
+    type connection_status = Unconnected
+      | Connected
+      | ConnectedRejection
+    type context = {
+      hostname: string;
+      port: int;
+      connection_status: connection_status;
+      user_id: string;
+      next_job : int32;
+    }
 
+    let connect (hn:string) (pt:int) (authentication:string) =
+      let response = Connection.send_connection_request(hn) (pt) (authentication) in
+      match response.connection_accepted with
+          | true -> 
+            {
+              hostname = hn ;
+              port = pt;
+              connection_status = Connected ;
+              user_id = response.user_id ;
+              next_job = Int32.one ;
+            }
+          | false -> 
+            {
+              hostname = hn ;
+              port = pt;
+              connection_status = Unconnected ;
+              user_id = response.user_id ;
+              next_job = Int32.one ;
+            }
+      
+    let submit (ctx: context) (jobs: job list) = 
+        if (ctx.connection_status = Connected) then
+          let job_count = Int32.add Int32.one (Int32.of_int (List.length jobs)) in
+          Util.info_print("Submitting " ^ (string_of_int (Int32.to_int job_count)) ^ " jobs to the cluster");
+          let single_request = Job_submission(Parli_core_proto.Job_types.({
+              user_id = ctx.user_id;
+              jobs = jobs;
+            })
+          ) in
+          let single_response = Connection.send_single_request(single_request) (ctx.hostname) (ctx.port) in 
+          match single_response with
+          | Job_submission_response(response) -> (
+              if response.job_accepted then ({
+                  hostname = ctx.hostname ;
+                  port = ctx.port;
+                  connection_status = ctx.connection_status ;
+                  user_id = ctx.user_id ;
+                  next_job = Int32.add job_count ctx.next_job ;
+              }, Util.range(ctx.next_job) (Int32.add job_count ctx.next_job))
+              else (ctx,[])
+            )
+          | _ -> (Util.error_print("Recieved a response from server not of type job_submission_response"); (ctx,[]))
+      else
+        (Util.error_print("Context is unconnected to a cluster");
+        (ctx, []))
+  end
 
