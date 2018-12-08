@@ -26,10 +26,6 @@ message MapAction {
     string function_name = 3;
 }
 
-message OutputAction {
-    int32 job_id_out = 3;
-}
-
 message Job {
     int32 job_id = 1;
     //Needs too be user_id unique, so you can track the status of a job.
@@ -37,7 +33,6 @@ message Job {
     oneof action {
         InputAction input = 4;
         MapAction map = 5;
-        OutputAction output = 6;
     }
 }
 
