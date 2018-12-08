@@ -20,8 +20,9 @@ type single_request =
   | Job_status_request of Status_types.job_status_request
 
 type single_response =
-  | Job_status_response of Status_types.job_status_reponse
+  | Job_submission_response of Job_types.job_submission_response
   | Data_retrieval_response of Data_types.data_retrieval_response
+  | Job_status_response of Status_types.job_status_response
 
 
 (** {2 Default values} *)

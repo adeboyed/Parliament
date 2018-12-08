@@ -16,6 +16,6 @@ message JobStatus {
     Status status = 2;
 }
 
-message JobStatusReponse {
+message JobStatusResponse {
     repeated JobStatus jobStatus = 1;
 }

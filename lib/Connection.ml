@@ -73,6 +73,6 @@ let send_single_request (request: single_request) (hostname: string) (port: int)
         close_in ic; 
         bytes 
       in 
-      Parli_core_proto.Connection_pb.decode_single_response (Pbrt.Decoder.of_bytes bytes)
+      Parli_core_proto.Connection_pb.decode_single_response(Pbrt.Decoder.of_bytes bytes)
   in
   _send_to_master(func) (hostname) (port)

@@ -20,7 +20,7 @@ type job_status = {
   status : job_status_status;
 }
 
-type job_status_reponse = {
+type job_status_response = {
   job_status : job_status list;
 }
 
@@ -43,8 +43,8 @@ val default_job_status :
   job_status
 (** [default_job_status ()] is the default value for type [job_status] *)
 
-val default_job_status_reponse : 
+val default_job_status_response : 
   ?job_status:job_status list ->
   unit ->
-  job_status_reponse
-(** [default_job_status_reponse ()] is the default value for type [job_status_reponse] *)
+  job_status_response
+(** [default_job_status_response ()] is the default value for type [job_status_response] *)

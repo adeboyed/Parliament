@@ -17,7 +17,7 @@ type job_status = {
   status : job_status_status;
 }
 
-type job_status_reponse = {
+type job_status_response = {
   job_status : job_status list;
 }
 
@@ -37,8 +37,8 @@ let rec default_job_status
   status;
 }
 
-let rec default_job_status_reponse 
+let rec default_job_status_response 
   ?job_status:((job_status:job_status list) = [])
-  () : job_status_reponse  = {
+  () : job_status_response  = {
   job_status;
 }

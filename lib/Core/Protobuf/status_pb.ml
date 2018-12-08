@@ -18,11 +18,11 @@ let default_job_status_mutable () : job_status_mutable = {
   status = Status_types.default_job_status_status ();
 }
 
-type job_status_reponse_mutable = {
+type job_status_response_mutable = {
   mutable job_status : Status_types.job_status list;
 }
 
-let default_job_status_reponse_mutable () : job_status_reponse_mutable = {
+let default_job_status_response_mutable () : job_status_response_mutable = {
   job_status = [];
 }
 
@@ -79,8 +79,8 @@ let rec decode_job_status d =
     Status_types.status = v.status;
   } : Status_types.job_status)
 
-let rec decode_job_status_reponse d =
-  let v = default_job_status_reponse_mutable () in
+let rec decode_job_status_response d =
+  let v = default_job_status_response_mutable () in
   let continue__= ref true in
   while !continue__ do
     match Pbrt.Decoder.key d with
@@ -91,12 +91,12 @@ let rec decode_job_status_reponse d =
       v.job_status <- (decode_job_status (Pbrt.Decoder.nested d)) :: v.job_status;
     end
     | Some (1, pk) -> 
-      Pbrt.Decoder.unexpected_payload "Message(job_status_reponse), field(1)" pk
+      Pbrt.Decoder.unexpected_payload "Message(job_status_response), field(1)" pk
     | Some (_, payload_kind) -> Pbrt.Decoder.skip d payload_kind
   done;
   ({
     Status_types.job_status = v.job_status;
-  } : Status_types.job_status_reponse)
+  } : Status_types.job_status_response)
 
 let rec encode_job_status_request (v:Status_types.job_status_request) encoder = 
   List.iter (fun x -> 
@@ -120,7 +120,7 @@ let rec encode_job_status (v:Status_types.job_status) encoder =
   encode_job_status_status v.Status_types.status encoder;
   ()
 
-let rec encode_job_status_reponse (v:Status_types.job_status_reponse) encoder = 
+let rec encode_job_status_response (v:Status_types.job_status_response) encoder = 
   List.iter (fun x -> 
     Pbrt.Encoder.key (1, Pbrt.Bytes) encoder; 
     Pbrt.Encoder.nested (encode_job_status x) encoder;

@@ -7,7 +7,6 @@
 open Marshal
 open Parli_core_proto.Job_types
 open Parli_core_proto.Connection_types
-open Mutex
 
 (* Types *)
 
@@ -24,7 +23,6 @@ class parliament_context =
     val mutable user_id : string = ""
 
     val mutable job_id_counter : int32 = Int32.one;
-    val mutable counter_lock : Mutex.t = Mutex.create();
 
     method connnect(hn:string) (pt:int) (authentication:string) = 
       let response = Connection.send_connection_request(hn) (pt) (authentication) in
@@ -42,14 +40,10 @@ class parliament_context =
     method hostname = hostname
     method port = port
           
-    method start_submission =
-      (* counter_lock.lock(); *)
-      (user_id, job_id_counter)
-    
-    method stop_submission (new_id) =
-      job_id_counter <- new_id;
-      (* counter_lock.unlock(); *)
-      true
+    method submit_job (job_count : int32) =
+      let old_count = job_id_counter in
+      job_id_counter <- Int32.add job_id_counter job_count;
+      (user_id, old_count)
     
   end
 
@@ -120,7 +114,8 @@ module Workload =
       let rec build_jobs (acc) (id) = function 
         | [] -> List.rev(acc)
         | h::tail -> build_jobs (build_job(h)::acc) (id+1) (tail) in
-      input_job::(build_jobs([]) (starting_id) (wl.jobs))
+
+      input_job::(build_jobs ([]) (starting_id) (wl.jobs))
 
     let submit (wl: 'a workload) (ctx: parliament_context) =
       let user_id, counter = ctx#start_submission in

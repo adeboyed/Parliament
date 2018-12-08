@@ -24,7 +24,8 @@ message SingleRequest {
 
 message SingleResponse {
     oneof response {
-        JobStatusReponse job_status_response = 1;
+        JobSubmissionResponse job_submission_response = 1;
         DataRetrievalResponse data_retrieval_response = 2;
+        JobStatusResponse job_status_response = 3;
     }
 }
