@@ -1,13 +1,17 @@
 [@@@ocaml.warning "-27-30-39"]
 
 
-type connection_request_status =
+type connection_request_action =
   | Heartbeat 
   | Close_connection 
 
 type connection_request = {
-  user_id : int32;
-  status : connection_request_status;
+  user_id : string;
+  action : connection_request_action;
+}
+
+type connection_response = {
+  request_accepted : bool;
 }
 
 type single_request =
@@ -20,15 +24,22 @@ type single_response =
   | Job_submission_response of Job_types.job_submission_response
   | Data_retrieval_response of Data_types.data_retrieval_response
   | Job_status_response of Status_types.job_status_response
+  | Connection_response of connection_response
 
-let rec default_connection_request_status () = (Heartbeat:connection_request_status)
+let rec default_connection_request_action () = (Heartbeat:connection_request_action)
 
 let rec default_connection_request 
-  ?user_id:((user_id:int32) = 0l)
-  ?status:((status:connection_request_status) = default_connection_request_status ())
+  ?user_id:((user_id:string) = "")
+  ?action:((action:connection_request_action) = default_connection_request_action ())
   () : connection_request  = {
   user_id;
-  status;
+  action;
+}
+
+let rec default_connection_response 
+  ?request_accepted:((request_accepted:bool) = false)
+  () : connection_response  = {
+  request_accepted;
 }
 
 let rec default_single_request () : single_request = Connection_request (default_connection_request ())

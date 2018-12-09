@@ -5,12 +5,16 @@ import "Job.proto";
 import "Status.proto";
 
 message ConnectionRequest {
-    int32 user_id = 1;
-    enum Status {
+    string user_id = 1;
+    enum Action {
         HEARTBEAT = 0;
         CLOSE_CONNECTION = 1;
     }
-    Status status = 2;
+    Action action = 2;
+}
+
+message ConnectionResponse {
+    bool request_accepted  = 1;
 }
 
 message SingleRequest {
@@ -27,5 +31,6 @@ message SingleResponse {
         JobSubmissionResponse job_submission_response = 1;
         DataRetrievalResponse data_retrieval_response = 2;
         JobStatusResponse job_status_response = 3;
+        ConnectionResponse connection_response = 4;
     }
 }

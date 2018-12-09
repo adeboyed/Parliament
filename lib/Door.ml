@@ -103,7 +103,7 @@ struct
 
   type connection_status = Unconnected
                          | Connected
-                         | ConnectedRejection
+                         | Disconnected
 
   type context = {
     hostname: string ;
@@ -146,13 +146,36 @@ struct
         next_job = Int32.one ;
       }
 
-  let validate_context ctx =
+  let validate ctx =
     match ctx.connection_status with 
     | Connected -> ctx
     | _ -> (Util.error_print("Context is unconnected to a cluster"); raise UnconnectedException)  
 
+  let heartbeat ctx_in =
+    let ctx = validate ctx_in in 
+    let single_request = Connection_request(Parli_core_proto.Connection_types.({
+        user_id = ctx.user_id ;
+        action = Heartbeat ;
+      })
+      ) in
+    let single_response = Connection.send_single_request ctx.hostname ctx.port single_request in 
+    match single_response with
+    | Connection_response(response) -> (
+        if (response.request_accepted) then
+          ctx
+        else
+          {
+            hostname = ctx.hostname ;
+            port = ctx.port ;
+            connection_status = Disconnected ;
+            user_id = "" ;
+            next_job = Int32.one ;
+          }
+      )
+    | _ -> (Util.error_print("Recieved a response from server not of type ConnectionResponse"); ctx)
+
   let submit ctx_in jobs = 
-    let ctx = validate_context ctx_in in 
+    let ctx = validate ctx_in in 
     let job_count = Int32.succ (Int32.succ (Int32.of_int (List.length jobs))) in
     Util.info_print("Submitting " ^ (string_of_int (Int32.to_int job_count)) ^ " jobs to the cluster");
     let single_request = Job_submission(Parli_core_proto.Job_types.({
@@ -173,10 +196,10 @@ struct
           }, Some(running_jobs_list))
         else (ctx, None)
       )
-    | _ -> (Util.error_print("Recieved a response from server not of type job_submission_response"); (ctx, None))
+    | _ -> (Util.error_print("Recieved a response from server not of type JobSubmissionResponse"); (ctx, None))
 
   let job_status ctx_in jobs =
-    let ctx = validate_context ctx_in in
+    let ctx = validate ctx_in in
     let single_request = Job_status_request(Parli_core_proto.Job_types.({
         job_ids = List.map (fun x -> x.job_id) jobs
       })
@@ -209,7 +232,7 @@ struct
         | _ -> false)
 
   let rec wait_until_output ctx_in jobs =
-    let ctx = validate_context ctx_in in
+    let ctx = validate ctx_in in
     let ctx_out, status_option = job_status ctx jobs in
     let status = match status_option with
       | Some(x) -> x
@@ -219,7 +242,7 @@ struct
     | false -> wait_until_output ctx_out jobs
 
   let output ctx_in job_id = 
-    let ctx = validate_context ctx_in in
+    let ctx = validate ctx_in in
     let single_request = Data_retrieval_request(Parli_core_proto.Data_types.({
         job_id = job_id;
       })
