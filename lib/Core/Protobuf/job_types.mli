@@ -19,14 +19,9 @@ type map_action = {
   function_name : string;
 }
 
-type output_action = {
-  job_id_out : int32;
-}
-
 type job_action =
   | Input of input_action
   | Map of map_action
-  | Output of output_action
 
 and job = {
   job_id : int32;
@@ -61,12 +56,6 @@ val default_map_action :
   unit ->
   map_action
 (** [default_map_action ()] is the default value for type [map_action] *)
-
-val default_output_action : 
-  ?job_id_out:int32 ->
-  unit ->
-  output_action
-(** [default_output_action ()] is the default value for type [output_action] *)
 
 val default_job_action : unit -> job_action
 (** [default_job_action ()] is the default value for type [job_action] *)

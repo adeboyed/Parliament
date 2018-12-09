@@ -16,14 +16,9 @@ type map_action = {
   function_name : string;
 }
 
-type output_action = {
-  job_id_out : int32;
-}
-
 type job_action =
   | Input of input_action
   | Map of map_action
-  | Output of output_action
 
 and job = {
   job_id : int32;
@@ -55,12 +50,6 @@ let rec default_map_action
   map_type;
   job_id_in;
   function_name;
-}
-
-let rec default_output_action 
-  ?job_id_out:((job_id_out:int32) = 0l)
-  () : output_action  = {
-  job_id_out;
 }
 
 let rec default_job_action () : job_action = Input (default_input_action ())

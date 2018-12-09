@@ -5,7 +5,7 @@
 (** {2 Types} *)
 
 type job_status_request = {
-  job_id : int32 list;
+  job_ids : int32 list;
 }
 
 type job_status_status =
@@ -14,6 +14,7 @@ type job_status_status =
   | Running 
   | Completed 
   | Errored 
+  | Cancelled 
 
 type job_status = {
   job_id : int32;
@@ -28,7 +29,7 @@ type job_status_response = {
 (** {2 Default values} *)
 
 val default_job_status_request : 
-  ?job_id:int32 list ->
+  ?job_ids:int32 list ->
   unit ->
   job_status_request
 (** [default_job_status_request ()] is the default value for type [job_status_request] *)

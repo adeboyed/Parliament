@@ -3,8 +3,8 @@ let debug = true
 
 (* RANDOM FUNCTIONS *)
 
-let rec range i j = if i > j then [] else i :: (range (i+1) j)
-let range (i:int32) (j:int32) = range(Int32.to_int i) (Int32.to_int j)
+(* let rec range i j = if i > j then [] else i :: (range (i+1) j) *)
+let rec range i j = if (Int32.compare i j) > 0 then [] else i :: (range (Int32.succ i) j)
 
 (* PRINTING *)
 

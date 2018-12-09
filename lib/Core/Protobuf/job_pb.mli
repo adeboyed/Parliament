@@ -12,9 +12,6 @@ val encode_map_action_map_type : Job_types.map_action_map_type -> Pbrt.Encoder.t
 val encode_map_action : Job_types.map_action -> Pbrt.Encoder.t -> unit
 (** [encode_map_action v encoder] encodes [v] with the given [encoder] *)
 
-val encode_output_action : Job_types.output_action -> Pbrt.Encoder.t -> unit
-(** [encode_output_action v encoder] encodes [v] with the given [encoder] *)
-
 val encode_job_action : Job_types.job_action -> Pbrt.Encoder.t -> unit
 (** [encode_job_action v encoder] encodes [v] with the given [encoder] *)
 
@@ -38,9 +35,6 @@ val decode_map_action_map_type : Pbrt.Decoder.t -> Job_types.map_action_map_type
 
 val decode_map_action : Pbrt.Decoder.t -> Job_types.map_action
 (** [decode_map_action decoder] decodes a [map_action] value from [decoder] *)
-
-val decode_output_action : Pbrt.Decoder.t -> Job_types.output_action
-(** [decode_output_action decoder] decodes a [output_action] value from [decoder] *)
 
 val decode_job_action : Pbrt.Decoder.t -> Job_types.job_action
 (** [decode_job_action decoder] decodes a [job_action] value from [decoder] *)

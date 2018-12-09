@@ -2,7 +2,7 @@
 
 
 type job_status_request = {
-  job_id : int32 list;
+  job_ids : int32 list;
 }
 
 type job_status_status =
@@ -11,6 +11,7 @@ type job_status_status =
   | Running 
   | Completed 
   | Errored 
+  | Cancelled 
 
 type job_status = {
   job_id : int32;
@@ -22,9 +23,9 @@ type job_status_response = {
 }
 
 let rec default_job_status_request 
-  ?job_id:((job_id:int32 list) = [])
+  ?job_ids:((job_ids:int32 list) = [])
   () : job_status_request  = {
-  job_id;
+  job_ids;
 }
 
 let rec default_job_status_status () = (Queued:job_status_status)

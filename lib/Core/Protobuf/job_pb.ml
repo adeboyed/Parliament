@@ -20,14 +20,6 @@ let default_map_action_mutable () : map_action_mutable = {
   function_name = "";
 }
 
-type output_action_mutable = {
-  mutable job_id_out : int32;
-}
-
-let default_output_action_mutable () : output_action_mutable = {
-  job_id_out = 0l;
-}
-
 type job_mutable = {
   mutable job_id : int32;
   mutable action : Job_types.job_action;
@@ -112,31 +104,12 @@ let rec decode_map_action d =
     Job_types.function_name = v.function_name;
   } : Job_types.map_action)
 
-let rec decode_output_action d =
-  let v = default_output_action_mutable () in
-  let continue__= ref true in
-  while !continue__ do
-    match Pbrt.Decoder.key d with
-    | None -> (
-    ); continue__ := false
-    | Some (3, Pbrt.Varint) -> begin
-      v.job_id_out <- Pbrt.Decoder.int32_as_varint d;
-    end
-    | Some (3, pk) -> 
-      Pbrt.Decoder.unexpected_payload "Message(output_action), field(3)" pk
-    | Some (_, payload_kind) -> Pbrt.Decoder.skip d payload_kind
-  done;
-  ({
-    Job_types.job_id_out = v.job_id_out;
-  } : Job_types.output_action)
-
 let rec decode_job_action d = 
   let rec loop () = 
     let ret:Job_types.job_action = match Pbrt.Decoder.key d with
       | None -> Pbrt.Decoder.malformed_variant "job_action"
       | Some (4, _) -> Job_types.Input (decode_input_action (Pbrt.Decoder.nested d))
       | Some (5, _) -> Job_types.Map (decode_map_action (Pbrt.Decoder.nested d))
-      | Some (6, _) -> Job_types.Output (decode_output_action (Pbrt.Decoder.nested d))
       | Some (n, payload_kind) -> (
         Pbrt.Decoder.skip d payload_kind; 
         loop () 
@@ -168,11 +141,6 @@ and decode_job d =
     end
     | Some (5, pk) -> 
       Pbrt.Decoder.unexpected_payload "Message(job), field(5)" pk
-    | Some (6, Pbrt.Bytes) -> begin
-      v.action <- Job_types.Output (decode_output_action (Pbrt.Decoder.nested d));
-    end
-    | Some (6, pk) -> 
-      Pbrt.Decoder.unexpected_payload "Message(job), field(6)" pk
     | Some (_, payload_kind) -> Pbrt.Decoder.skip d payload_kind
   done;
   ({
@@ -243,11 +211,6 @@ let rec encode_map_action (v:Job_types.map_action) encoder =
   Pbrt.Encoder.string v.Job_types.function_name encoder;
   ()
 
-let rec encode_output_action (v:Job_types.output_action) encoder = 
-  Pbrt.Encoder.key (3, Pbrt.Varint) encoder; 
-  Pbrt.Encoder.int32_as_varint v.Job_types.job_id_out encoder;
-  ()
-
 let rec encode_job_action (v:Job_types.job_action) encoder = 
   begin match v with
   | Job_types.Input x ->
@@ -256,9 +219,6 @@ let rec encode_job_action (v:Job_types.job_action) encoder =
   | Job_types.Map x ->
     Pbrt.Encoder.key (5, Pbrt.Bytes) encoder; 
     Pbrt.Encoder.nested (encode_map_action x) encoder;
-  | Job_types.Output x ->
-    Pbrt.Encoder.key (6, Pbrt.Bytes) encoder; 
-    Pbrt.Encoder.nested (encode_output_action x) encoder;
   end
 
 and encode_job (v:Job_types.job) encoder = 
@@ -271,9 +231,6 @@ and encode_job (v:Job_types.job) encoder =
   | Job_types.Map x ->
     Pbrt.Encoder.key (5, Pbrt.Bytes) encoder; 
     Pbrt.Encoder.nested (encode_map_action x) encoder;
-  | Job_types.Output x ->
-    Pbrt.Encoder.key (6, Pbrt.Bytes) encoder; 
-    Pbrt.Encoder.nested (encode_output_action x) encoder;
   end;
   ()
 
