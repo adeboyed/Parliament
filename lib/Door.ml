@@ -5,7 +5,7 @@
 
 (* open Core.Std *)
 open Marshal
-open Parli_core.Datapack
+open Datapack
 open Parli_core_proto.Job_types
 open Parli_core_proto.Status_types
 open Parli_core_proto.Connection_types

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+message WorkerInput {
+    bytes function_closure = 1;
+    enum MapType {
+        SINGLE_IN_VARIABLE_OUT = 0;
+        SINGLE_IN_SINGLE_OUT = 1;
+        VARIABLE_IN_VARIABLE_OUT = 2;
+    }
+    MapType mapType = 2;
+    bytes datapack = 3;
+}
+
+message WorkerOutput {
+    bytes datapack = 3;
+}
+

@@ -5,6 +5,7 @@
 
 open Sys
 open Door.Context
+open Datapack
 
 let init_master : context  = 
   let hn = getenv "PARLIAMENT_HOSTNAME" in
@@ -21,7 +22,19 @@ let init_master : context  =
   ctx
 
 
-let init_worker = exit 2
+let init_worker = 
+  let bytes = 
+    let len = in_channel_length stdin in 
+    let bytes = Bytes.create len in 
+    really_input stdin bytes 0 len; 
+    bytes 
+  in
+  let worker_input = Parli_core_proto.Worker_pb.decode_worker_input(Pbrt.Decoder.of_bytes bytes) in
+  let datapack_in : datapack = Marshal.from_bytes worker_input.datapack 0 in 
+  let job_func : (datapack -> datapack) = Marshal.from_bytes worker_input.function_closure 0 in
+  let datapack_out = job_func datapack_in in
+  (* Do something *)
+  exit 0
 
 let init =
   let internal_init =
