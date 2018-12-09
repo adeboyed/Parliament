@@ -1,3 +1,7 @@
+(*
+ * Parliament - A distributed general-purpose cluster-computing framework for OCaml
+ * Copyright (c) 2018-2019 David Adeboye <doaa2@cl.cam.ac.uk>
+ *)
 
 let debug = true
 
@@ -14,5 +18,5 @@ let error_print (str:string) = Printf.printf "[PARLIAMENT error] %s \n" str
 
 let debug_print (str:string) =
   match debug with
-    | true -> Printf.printf "[PARLIAMENT debug] %s \n" str
-    | false -> ()
+  | true -> Printf.printf "[PARLIAMENT debug] %s \n" str
+  | false -> ()

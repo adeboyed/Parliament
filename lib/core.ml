@@ -32,4 +32,6 @@ let init =
     | _ -> (Util.error_print("Running option is set to " ^ running_option ^ "! No idea how to deal with"); exit 2)
   in
   try internal_init
-  with Not_found -> (Util.error_print("ENV is not setup correctly! Quitting..."); exit 2)
+  with 
+    Not_found -> (Util.error_print("ENV is not setup correctly! Quitting..."); exit 2)
+  | NotConnnectedException -> (Util.error_print("Heartbeat request did not succeed!"); exit 2)

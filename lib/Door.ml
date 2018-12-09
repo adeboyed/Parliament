@@ -58,7 +58,7 @@ struct
     let hd = List.hd(List.rev(wl.jobs)) in
     let tail = List.hd (List.rev (wl.jobs)) in
     match (hd.jobType, tail.jobType) with
-    | (_, SingleInVariableOut) -> raise LastJobMustBeSingleOut
+      (_, SingleInVariableOut) -> raise LastJobMustBeSingleOut
     | (VariableInSingleOut, _) -> raise FirstJobMustBeSingleIn
     | _ -> wl
 
@@ -74,7 +74,7 @@ struct
       }) in
     let build_job job prev_id = 
       let map_type_val = (match job.jobType with
-          | SingleInSingleOut -> Single_in_variable_out
+            SingleInSingleOut -> Single_in_variable_out
           | VariableInSingleOut -> Variable_in_variable_out
           | SingleInVariableOut -> Single_in_variable_out)
       in
@@ -99,7 +99,7 @@ end
 
 module Context =
 struct
-  exception UnconnectedException
+  exception NotConnnectedException
 
   type connection_status = Unconnected
                          | Connected
@@ -129,7 +129,7 @@ struct
   let connect hn pt auth =
     let response = Connection.send_connection_request hn pt auth in
     match response.connection_accepted with
-    | true -> 
+      true -> 
       {
         hostname = hn ;
         port = pt;
@@ -148,8 +148,8 @@ struct
 
   let validate ctx =
     match ctx.connection_status with 
-    | Connected -> ctx
-    | _ -> (Util.error_print("Context is unconnected to a cluster"); raise UnconnectedException)  
+      Connected -> ctx
+    | _ -> (Util.error_print("Context is unconnected to a cluster"); raise NotConnnectedException)  
 
   let heartbeat ctx_in =
     let ctx = validate ctx_in in 
@@ -160,7 +160,7 @@ struct
       ) in
     let single_response = Connection.send_single_request ctx.hostname ctx.port single_request in 
     match single_response with
-    | Connection_response(response) -> (
+      Connection_response(response) -> (
         if (response.request_accepted) then
           ctx
         else
@@ -186,7 +186,7 @@ struct
     let running_jobs_list = List.map (fun x -> {job_id = x ; status = Queued}) (Util.range(ctx.next_job) (Int32.add job_count ctx.next_job)) in
     let single_response = Connection.send_single_request ctx.hostname ctx.port single_request in 
     match single_response with
-    | Job_submission_response(response) -> (
+      Job_submission_response(response) -> (
         if response.job_accepted then ({
             hostname = ctx.hostname ;
             port = ctx.port;
@@ -220,7 +220,7 @@ struct
       } in
     let single_response = Connection.send_single_request ctx.hostname ctx.port single_request in 
     match single_response with
-    | Job_status_response(response) -> (
+      Job_status_response(response) -> (
         (ctx, Some(List.map proto_to_running_job response.job_status))
       )
     | _ -> (Util.error_print("Recieved a response from server not of type Job_status_response"); (ctx, None))
@@ -228,7 +228,7 @@ struct
   let rec all_completed = function
     | [] -> true
     | h::tail -> (match h.status with
-        | Completed -> all_completed tail
+          Completed -> all_completed tail
         | _ -> false)
 
   let rec wait_until_output ctx_in jobs =
@@ -236,9 +236,9 @@ struct
     let ctx_out, status_option = job_status ctx jobs in
     let status = match status_option with
       | Some(x) -> x
-      | None -> raise UnconnectedException in
+      | None -> raise NotConnnectedException in
     match all_completed status with
-    | true -> ()
+      true -> ()
     | false -> wait_until_output ctx_out jobs
 
   let output ctx_in job_id = 
@@ -249,7 +249,7 @@ struct
       ) in
     let single_response = Connection.send_single_request ctx.hostname ctx.port single_request in 
     match single_response with
-    | Data_retrieval_response(response) -> (
+      Data_retrieval_response(response) -> (
         (ctx, Some(response.bytes))
       )
     | _ -> (Util.error_print("Recieved a response from server not of type Data_retrieval_response"); (ctx, None))
