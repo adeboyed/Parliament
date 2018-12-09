@@ -151,7 +151,7 @@ struct
     | Connected -> ctx
     | _ -> (Util.error_print("Context is unconnected to a cluster"); raise UnconnectedException)  
 
-  let submit (ctx_in: context) (jobs: job list) = 
+  let submit ctx_in jobs = 
     let ctx = validate_context ctx_in in 
     let job_count = Int32.succ (Int32.succ (Int32.of_int (List.length jobs))) in
     Util.info_print("Submitting " ^ (string_of_int (Int32.to_int job_count)) ^ " jobs to the cluster");
@@ -202,6 +202,22 @@ struct
       )
     | _ -> (Util.error_print("Recieved a response from server not of type Job_status_response"); (ctx, None))
 
+  let rec all_completed = function
+    | [] -> true
+    | h::tail -> (match h.status with
+        | Completed -> all_completed tail
+        | _ -> false)
+
+  let rec wait_until_output ctx_in jobs =
+    let ctx = validate_context ctx_in in
+    let ctx_out, status_option = job_status ctx jobs in
+    let status = match status_option with
+      | Some(x) -> x
+      | None -> raise UnconnectedException in
+    match all_completed status with
+    | true -> ()
+    | false -> wait_until_output ctx_out jobs
+
   let output ctx_in job_id = 
     let ctx = validate_context ctx_in in
     let single_request = Data_retrieval_request(Parli_core_proto.Data_types.({
@@ -215,8 +231,4 @@ struct
       )
     | _ -> (Util.error_print("Recieved a response from server not of type Data_retrieval_response"); (ctx, None))
 
-
 end
-
-let fives =
-  (5, 5)

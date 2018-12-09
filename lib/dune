@@ -5,17 +5,5 @@
 (library
  (name        parliament)
   (public_name parliament)
-  (modules )
-  (libraries core ))
-
-(library
- (name			worker)
-  (public_name	parliament.worker)
-  (modules worker)
-  (libraries core parli_core))
-
-(library
- (name        door)
-  (public_name parliament.door)
-  (modules util connection door)
+  (modules util connection door core)
   (libraries core parli_core parli_core_proto))
