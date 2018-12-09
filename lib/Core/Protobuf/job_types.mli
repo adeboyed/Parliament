@@ -16,7 +16,7 @@ type map_action_map_type =
 type map_action = {
   map_type : map_action_map_type;
   job_id_in : int32;
-  function_name : string;
+  function_closure : bytes;
 }
 
 type job_action =
@@ -52,7 +52,7 @@ val default_map_action_map_type : unit -> map_action_map_type
 val default_map_action : 
   ?map_type:map_action_map_type ->
   ?job_id_in:int32 ->
-  ?function_name:string ->
+  ?function_closure:bytes ->
   unit ->
   map_action
 (** [default_map_action ()] is the default value for type [map_action] *)

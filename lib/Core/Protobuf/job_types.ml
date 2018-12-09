@@ -13,7 +13,7 @@ type map_action_map_type =
 type map_action = {
   map_type : map_action_map_type;
   job_id_in : int32;
-  function_name : string;
+  function_closure : bytes;
 }
 
 type job_action =
@@ -45,11 +45,11 @@ let rec default_map_action_map_type () = (Single_in_variable_out:map_action_map_
 let rec default_map_action 
   ?map_type:((map_type:map_action_map_type) = default_map_action_map_type ())
   ?job_id_in:((job_id_in:int32) = 0l)
-  ?function_name:((function_name:string) = "")
+  ?function_closure:((function_closure:bytes) = Bytes.create 0)
   () : map_action  = {
   map_type;
   job_id_in;
-  function_name;
+  function_closure;
 }
 
 let rec default_job_action () : job_action = Input (default_input_action ())

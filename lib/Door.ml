@@ -5,6 +5,7 @@
 
 (* open Core.Std *)
 open Marshal
+open Parli_core.Datapack
 open Parli_core_proto.Job_types
 open Parli_core_proto.Status_types
 open Parli_core_proto.Connection_types
@@ -14,48 +15,51 @@ open Parli_core_proto.Connection_types
 module Workload =
 struct
   exception LastJobMustBeSingleOut
+  exception FirstJobMustBeSingleIn
 
   type jobType = SingleInVariableOut | SingleInSingleOut | VariableInSingleOut
   type job = {
     jobType: jobType;
-    functionName: string
+    functionClosure: (datapack -> datapack)
   }
   type 'a workload = {
     input: 'a ;
     jobs : job list ;
   }
-  let input (x: 'a) = { 
+  let input x = { 
     input = x ;
     jobs = [] ;
   }
-  let singleInVariableOut wl name = {
+  let singleInVariableOut wl closure = {
     input = wl.input;
     jobs = {
       jobType = SingleInVariableOut ; 
-      functionName = name ;
+      functionClosure = closure ;
     }::wl.jobs ;
   }
 
-  let singleInsingleOut wl name = {
+  let singleInsingleOut wl closure = {
     input = wl.input;
     jobs = {
       jobType = SingleInSingleOut ; 
-      functionName = name ;
+      functionClosure = closure ;
     }::wl.jobs ;
   }
 
-  let variableInSingleOut wl name = {
+  let variableInSingleOut wl closure = {
     input = wl.input;
     jobs = {
       jobType = VariableInSingleOut ; 
-      functionName = name ;
+      functionClosure = closure ;
     }::wl.jobs ;
   }
 
   let validate wl = 
-    let tail = List.hd (List.rev (wl.jobs)) in 
-    match tail.jobType with
-    | SingleInVariableOut -> raise LastJobMustBeSingleOut
+    let hd = List.hd(List.rev(wl.jobs)) in
+    let tail = List.hd (List.rev (wl.jobs)) in
+    match (hd.jobType, tail.jobType) with
+    | (_, SingleInVariableOut) -> raise LastJobMustBeSingleOut
+    | (VariableInSingleOut, _) -> raise FirstJobMustBeSingleIn
     | _ -> wl
 
   let build wl_in starting_id =
@@ -74,12 +78,13 @@ struct
           | VariableInSingleOut -> Variable_in_variable_out
           | SingleInVariableOut -> Single_in_variable_out)
       in
+      let closure = Marshal.to_bytes job.functionClosure [Compat_32; Closures] in
       Parli_core_proto.Job_types.({
           job_id = (Int32.succ prev_id);
           action = Map(Parli_core_proto.Job_types.({
               map_type = map_type_val;
               job_id_in = prev_id;
-              function_name = job.functionName;
+              function_closure = closure;
             })
             )
         }) in
@@ -156,7 +161,7 @@ struct
       })
       ) in
     let running_jobs_list = List.map (fun x -> {job_id = x ; status = Queued}) (Util.range(ctx.next_job) (Int32.add job_count ctx.next_job)) in
-    let single_response = Connection.send_single_request(single_request) (ctx.hostname) (ctx.port) in 
+    let single_response = Connection.send_single_request ctx.hostname ctx.port single_request in 
     match single_response with
     | Job_submission_response(response) -> (
         if response.job_accepted then ({
@@ -185,12 +190,12 @@ struct
       | Errored -> Errored
       | Cancelled -> Cancelled
     in
-    let proto_to_running_job (proto) =
+    let proto_to_running_job (proto: job_status) =
       {
         job_id = proto.job_id ;
-        status = proto.status ;
+        status = convert_status_from_proto proto.status ;
       } in
-    let single_response = Connection.send_single_request(single_request) (ctx.hostname) (ctx.port) in 
+    let single_response = Connection.send_single_request ctx.hostname ctx.port single_request in 
     match single_response with
     | Job_status_response(response) -> (
         (ctx, Some(List.map proto_to_running_job response.job_status))
@@ -199,6 +204,19 @@ struct
 
   let output ctx_in job_id = 
     let ctx = validate_context ctx_in in
+    let single_request = Data_retrieval_request(Parli_core_proto.Data_types.({
+        job_id = job_id;
+      })
+      ) in
+    let single_response = Connection.send_single_request ctx.hostname ctx.port single_request in 
+    match single_response with
+    | Data_retrieval_response(response) -> (
+        (ctx, Some(response.bytes))
+      )
+    | _ -> (Util.error_print("Recieved a response from server not of type Data_retrieval_response"); (ctx, None))
 
 
 end
+
+let fives =
+  (5, 5)

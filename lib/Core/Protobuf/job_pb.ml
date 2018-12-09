@@ -11,13 +11,13 @@ let default_input_action_mutable () : input_action_mutable = {
 type map_action_mutable = {
   mutable map_type : Job_types.map_action_map_type;
   mutable job_id_in : int32;
-  mutable function_name : string;
+  mutable function_closure : bytes;
 }
 
 let default_map_action_mutable () : map_action_mutable = {
   map_type = Job_types.default_map_action_map_type ();
   job_id_in = 0l;
-  function_name = "";
+  function_closure = Bytes.create 0;
 }
 
 type job_mutable = {
@@ -92,7 +92,7 @@ let rec decode_map_action d =
     | Some (2, pk) -> 
       Pbrt.Decoder.unexpected_payload "Message(map_action), field(2)" pk
     | Some (3, Pbrt.Bytes) -> begin
-      v.function_name <- Pbrt.Decoder.string d;
+      v.function_closure <- Pbrt.Decoder.bytes d;
     end
     | Some (3, pk) -> 
       Pbrt.Decoder.unexpected_payload "Message(map_action), field(3)" pk
@@ -101,7 +101,7 @@ let rec decode_map_action d =
   ({
     Job_types.map_type = v.map_type;
     Job_types.job_id_in = v.job_id_in;
-    Job_types.function_name = v.function_name;
+    Job_types.function_closure = v.function_closure;
   } : Job_types.map_action)
 
 let rec decode_job_action d = 
@@ -208,7 +208,7 @@ let rec encode_map_action (v:Job_types.map_action) encoder =
   Pbrt.Encoder.key (2, Pbrt.Varint) encoder; 
   Pbrt.Encoder.int32_as_varint v.Job_types.job_id_in encoder;
   Pbrt.Encoder.key (3, Pbrt.Bytes) encoder; 
-  Pbrt.Encoder.string v.Job_types.function_name encoder;
+  Pbrt.Encoder.bytes v.Job_types.function_closure encoder;
   ()
 
 let rec encode_job_action (v:Job_types.job_action) encoder = 

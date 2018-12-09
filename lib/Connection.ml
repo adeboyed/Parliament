@@ -4,7 +4,6 @@
  *)
 
 open Unix
-open Parli_core_proto.Connection_types
 
 (* Helper functions *)
 let _open_connection (sockaddr:sockaddr) =
@@ -48,8 +47,6 @@ let _request_response request response ic oc  =
   in 
   response (Pbrt.Decoder.of_bytes bytes)
 (* Actual useful functions *)
-
-
 
 let send_connection_request hostname port auth =
   let request_obj = Parli_core_proto.Create_connection_types.({ 

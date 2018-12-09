@@ -23,7 +23,7 @@ message MapAction {
     MapType mapType = 1;
     
     int32 job_id_in = 2;
-    string function_name = 3;
+    bytes function_closure = 3;
 }
 
 message Job {
