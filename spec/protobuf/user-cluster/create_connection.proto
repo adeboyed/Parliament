@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-import "data.proto";
-import "job.proto";
-import "status.proto";
+import "Data.proto";
+import "Job.proto";
+import "Status.proto";
 
 message CreateConnectionRequest {
-    string authentication = 1; 
+    string authentication = 2; 
     // Currently not implemented but there for future 
 }
 
@@ -17,4 +17,9 @@ message CreateConnectionResponse {
     */
     bool connection_accepted = 2;
     // If true, the cluster has accepted the connection, however no requirement for the cluster to accept
+}
+
+message ExecutableRequest {
+    string user_id = 1;
+    bytes executable = 2;
 }

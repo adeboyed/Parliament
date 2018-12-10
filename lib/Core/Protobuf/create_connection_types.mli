@@ -13,6 +13,11 @@ type create_connection_response = {
   connection_accepted : bool;
 }
 
+type executable_request = {
+  user_id : string;
+  executable : bytes;
+}
+
 
 (** {2 Default values} *)
 
@@ -28,3 +33,10 @@ val default_create_connection_response :
   unit ->
   create_connection_response
 (** [default_create_connection_response ()] is the default value for type [create_connection_response] *)
+
+val default_executable_request : 
+  ?user_id:string ->
+  ?executable:bytes ->
+  unit ->
+  executable_request
+(** [default_executable_request ()] is the default value for type [executable_request] *)

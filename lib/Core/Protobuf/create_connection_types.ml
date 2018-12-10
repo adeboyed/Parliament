@@ -10,6 +10,11 @@ type create_connection_response = {
   connection_accepted : bool;
 }
 
+type executable_request = {
+  user_id : string;
+  executable : bytes;
+}
+
 let rec default_create_connection_request 
   ?authentication:((authentication:string) = "")
   () : create_connection_request  = {
@@ -22,4 +27,12 @@ let rec default_create_connection_response
   () : create_connection_response  = {
   user_id;
   connection_accepted;
+}
+
+let rec default_executable_request 
+  ?user_id:((user_id:string) = "")
+  ?executable:((executable:bytes) = Bytes.create 0)
+  () : executable_request  = {
+  user_id;
+  executable;
 }

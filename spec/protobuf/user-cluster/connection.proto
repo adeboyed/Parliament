@@ -1,16 +1,21 @@
 syntax = "proto3";
 
-import "data.proto";
-import "job.proto";
-import "status.proto";
+import "Create_connection.proto";
+import "Data.proto";
+import "Job.proto";
+import "Status.proto";
 
 message ConnectionRequest {
-    int32 user_id = 1;
-    enum Status {
-        HEARTBEAT = 1;
-        CLOSE_CONNECTION = 2;
+    string user_id = 1;
+    enum Action {
+        HEARTBEAT = 0;
+        CLOSE_CONNECTION = 1;
     }
-    Status status = 2;
+    Action action = 2;
+}
+
+message ConnectionResponse {
+    bool request_accepted  = 1;
 }
 
 message SingleRequest {
@@ -19,5 +24,15 @@ message SingleRequest {
         JobSubmission job_submission = 2;
         DataRetrievalRequest data_retrieval_request = 3;
         JobStatusRequest job_status_request = 4;
+		ExecutableRequest executable_request = 5;
+	}
+}
+
+message SingleResponse {
+    oneof response {
+        JobSubmissionResponse job_submission_response = 1;
+        DataRetrievalResponse data_retrieval_response = 2;
+        JobStatusResponse job_status_response = 3;
+        ConnectionResponse connection_response = 4;
     }
 }

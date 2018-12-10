@@ -19,6 +19,7 @@ type single_request =
   | Job_submission of Job_types.job_submission
   | Data_retrieval_request of Data_types.data_retrieval_request
   | Job_status_request of Status_types.job_status_request
+  | Executable_request of Create_connection_types.executable_request
 
 type single_response =
   | Job_submission_response of Job_types.job_submission_response

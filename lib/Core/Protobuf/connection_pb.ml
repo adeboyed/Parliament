@@ -75,6 +75,7 @@ let rec decode_single_request d =
       | Some (2, _) -> Connection_types.Job_submission (Job_pb.decode_job_submission (Pbrt.Decoder.nested d))
       | Some (3, _) -> Connection_types.Data_retrieval_request (Data_pb.decode_data_retrieval_request (Pbrt.Decoder.nested d))
       | Some (4, _) -> Connection_types.Job_status_request (Status_pb.decode_job_status_request (Pbrt.Decoder.nested d))
+      | Some (5, _) -> Connection_types.Executable_request (Create_connection_pb.decode_executable_request (Pbrt.Decoder.nested d))
       | Some (n, payload_kind) -> (
         Pbrt.Decoder.skip d payload_kind; 
         loop () 
@@ -132,6 +133,9 @@ let rec encode_single_request (v:Connection_types.single_request) encoder =
   | Connection_types.Job_status_request x ->
     Pbrt.Encoder.key (4, Pbrt.Bytes) encoder; 
     Pbrt.Encoder.nested (Status_pb.encode_job_status_request x) encoder;
+  | Connection_types.Executable_request x ->
+    Pbrt.Encoder.key (5, Pbrt.Bytes) encoder; 
+    Pbrt.Encoder.nested (Create_connection_pb.encode_executable_request x) encoder;
   end
 
 let rec encode_single_response (v:Connection_types.single_response) encoder = 

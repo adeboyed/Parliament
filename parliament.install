@@ -1,7 +1,6 @@
 lib: [
   "_build/install/default/lib/parliament/META" {"META"}
   "_build/install/default/lib/parliament/connection.ml" {"connection.ml"}
-  "_build/install/default/lib/parliament/core.ml" {"core.ml"}
   "_build/install/default/lib/parliament/core/parli_core.a" {"core/parli_core.a"}
   "_build/install/default/lib/parliament/core/parli_core.cma" {"core/parli_core.cma"}
   "_build/install/default/lib/parliament/core/parli_core.cmi" {"core/parli_core.cmi"}
@@ -94,6 +93,7 @@ lib: [
   "_build/install/default/lib/parliament/core/protobuf/parliament.core.protobuf.dune" {"core/protobuf/parliament.core.protobuf.dune"}
   "_build/install/default/lib/parliament/datapack.ml" {"datapack.ml"}
   "_build/install/default/lib/parliament/door.ml" {"door.ml"}
+  "_build/install/default/lib/parliament/house.ml" {"house.ml"}
   "_build/install/default/lib/parliament/opam" {"opam"}
   "_build/install/default/lib/parliament/parliament.a" {"parliament.a"}
   "_build/install/default/lib/parliament/parliament.cma" {"parliament.cma"}
@@ -107,15 +107,15 @@ lib: [
   "_build/install/default/lib/parliament/parliament__Connection.cmi" {"parliament__Connection.cmi"}
   "_build/install/default/lib/parliament/parliament__Connection.cmt" {"parliament__Connection.cmt"}
   "_build/install/default/lib/parliament/parliament__Connection.cmx" {"parliament__Connection.cmx"}
-  "_build/install/default/lib/parliament/parliament__Core.cmi" {"parliament__Core.cmi"}
-  "_build/install/default/lib/parliament/parliament__Core.cmt" {"parliament__Core.cmt"}
-  "_build/install/default/lib/parliament/parliament__Core.cmx" {"parliament__Core.cmx"}
   "_build/install/default/lib/parliament/parliament__Datapack.cmi" {"parliament__Datapack.cmi"}
   "_build/install/default/lib/parliament/parliament__Datapack.cmt" {"parliament__Datapack.cmt"}
   "_build/install/default/lib/parliament/parliament__Datapack.cmx" {"parliament__Datapack.cmx"}
   "_build/install/default/lib/parliament/parliament__Door.cmi" {"parliament__Door.cmi"}
   "_build/install/default/lib/parliament/parliament__Door.cmt" {"parliament__Door.cmt"}
   "_build/install/default/lib/parliament/parliament__Door.cmx" {"parliament__Door.cmx"}
+  "_build/install/default/lib/parliament/parliament__House.cmi" {"parliament__House.cmi"}
+  "_build/install/default/lib/parliament/parliament__House.cmt" {"parliament__House.cmt"}
+  "_build/install/default/lib/parliament/parliament__House.cmx" {"parliament__House.cmx"}
   "_build/install/default/lib/parliament/parliament__Util.cmi" {"parliament__Util.cmi"}
   "_build/install/default/lib/parliament/parliament__Util.cmt" {"parliament__Util.cmt"}
   "_build/install/default/lib/parliament/parliament__Util.cmx" {"parliament__Util.cmx"}
