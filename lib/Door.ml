@@ -14,53 +14,67 @@ open Parli_core_proto.Connection_types
 
 module Workload =
 struct
-  exception LastJobMustBeSingleOut
+  exception MustHaveSingleOuptput
   exception FirstJobMustBeSingleIn
+  exception InputMustBeSingleIn
+  exception IncorrectFormulationOfStages
 
-  type jobType = SingleInVariableOut | SingleInSingleOut | VariableInSingleOut
-  type job = {
-    jobType: jobType;
-    functionClosure: (datapack -> datapack)
-  }
-  type 'a workload = {
-    input: 'a ;
-    jobs : job list ;
+  exception OnlySingleInputAtStage
+
+  type job = SingleInVariableOut of (datapack -> datapack) 
+           | SingleInSingleOut of (datapack -> datapack) 
+           | VariableInSingleOut of (datapack -> datapack) 
+
+  type workload = {
+    input: datapack ;
+    job_list : job list ;
   }
   let input x = { 
     input = x ;
-    jobs = [] ;
-  }
-  let singleInVariableOut wl closure = {
-    input = wl.input;
-    jobs = {
-      jobType = SingleInVariableOut ; 
-      functionClosure = closure ;
-    }::wl.jobs ;
+    job_list = [] ;
   }
 
-  let singleInsingleOut wl closure = {
-    input = wl.input;
-    jobs = {
-      jobType = SingleInSingleOut ; 
-      functionClosure = closure ;
-    }::wl.jobs ;
-  }
+  let stage_validate prev next =
+    match (prev, next) with
+    | (VariableInSingleOut(_), VariableInSingleOut(_)) -> raise OnlySingleInputAtStage
+    | _ -> ()
 
-  let variableInSingleOut wl closure = {
-    input = wl.input;
-    jobs = {
-      jobType = VariableInSingleOut ; 
-      functionClosure = closure ;
-    }::wl.jobs ;
-  }
+  let add wl job =
+    let rtn_value = {
+      input = wl.input;
+      job_list = job::wl.job_list ;
+    } in
+    match wl.job_list with 
+    | [] -> rtn_value
+    | hd::_ ->  stage_validate hd job; rtn_value
 
-  let validate wl = 
-    let hd = List.hd(List.rev(wl.jobs)) in
-    let tail = List.hd (List.rev (wl.jobs)) in
-    match (hd.jobType, tail.jobType) with
-      (_, SingleInVariableOut) -> raise LastJobMustBeSingleOut
-    | (VariableInSingleOut, _) -> raise FirstJobMustBeSingleIn
-    | _ -> wl
+  let add_all wl jobs = 
+    let wl_ref = ref wl in 
+    List.iter (fun x -> (wl_ref:= add !wl_ref x)) jobs;
+    !wl_ref
+
+  let branch_validate wl = 
+    let jobs = List.rev wl.job_list in 
+    let rec check acc jobs =
+      match (acc, jobs) with
+        _, [] -> ()
+      | _,SingleInSingleOut(_)::tail -> check acc tail
+      | 1,VariableInSingleOut(_)::tail -> check (acc-1) (tail)
+      | _,VariableInSingleOut(_)::_ -> raise IncorrectFormulationOfStages
+      | 0,SingleInVariableOut(_)::tail -> check (acc+1) tail
+      | _,SingleInVariableOut(_)::_ -> raise IncorrectFormulationOfStages
+    in
+    check 0 jobs
+
+  let validate wl =
+    branch_validate wl;
+    let hd = List.hd(List.rev(wl.job_list)) in
+    let tail = List.hd (List.rev (wl.job_list)) in
+    match (length wl.input, hd, tail) with
+      (_, _, SingleInVariableOut(_)) -> raise MustHaveSingleOuptput
+    | (_,VariableInSingleOut(_), _) -> raise FirstJobMustBeSingleIn
+    |  (0, _, _) -> wl
+    | _ -> raise InputMustBeSingleIn
 
   let build wl_in starting_id =
     let wl = validate wl_in in 
@@ -73,12 +87,12 @@ struct
           )
       }) in
     let build_job job prev_id = 
-      let map_type_val = (match job.jobType with
-            SingleInSingleOut -> Single_in_variable_out
-          | VariableInSingleOut -> Variable_in_variable_out
-          | SingleInVariableOut -> Single_in_variable_out)
+      let map_type_val, function_closure = (match job with
+            SingleInSingleOut(closure) -> Single_in_variable_out, closure
+          | VariableInSingleOut(closure) -> Variable_in_variable_out, closure
+          | SingleInVariableOut(closure) -> Single_in_variable_out, closure)
       in
-      let closure = Marshal.to_bytes job.functionClosure [Compat_32; Closures] in
+      let closure = Marshal.to_bytes function_closure [Compat_32; Closures] in
       Parli_core_proto.Job_types.({
           job_id = (Int32.succ prev_id);
           action = Map(Parli_core_proto.Job_types.({
@@ -89,16 +103,17 @@ struct
             )
         }) in
     let rec build_jobs acc id = function 
-      | [] -> List.rev(acc)
+      | [] -> acc
       | h::tail -> build_jobs ((build_job(h) (id))::acc) (Int32.add Int32.one id) (tail) 
     in
 
-    input_job::(build_jobs ([]) (starting_id) (wl.jobs))
+    input_job::(build_jobs ([]) (starting_id) (wl.job_list))
 
 end
 
 module Context =
 struct
+  open Workload
   exception NotConnnectedException
 
   type connection_status = Unconnected
@@ -174,10 +189,11 @@ struct
       )
     | _ -> (Util.error_print("Recieved a response from server not of type ConnectionResponse"); ctx)
 
-  let submit ctx_in jobs = 
+  let submit ctx_in workload = 
     let ctx = validate ctx_in in 
-    let job_count = Int32.succ (Int32.succ (Int32.of_int (List.length jobs))) in
+    let job_count = Int32.succ (Int32.succ (Int32.of_int (List.length workload.job_list))) in
     Util.info_print("Submitting " ^ (string_of_int (Int32.to_int job_count)) ^ " jobs to the cluster");
+    let jobs = Workload.build workload ctx.next_job in
     let single_request = Job_submission(Parli_core_proto.Job_types.({
         user_id = ctx.user_id;
         jobs = jobs;
