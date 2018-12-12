@@ -5,7 +5,7 @@ message WorkerInput {
     enum MapType {
         SINGLE_IN_VARIABLE_OUT = 0;
         SINGLE_IN_SINGLE_OUT = 1;
-        VARIABLE_IN_VARIABLE_OUT = 2;
+        VARIABLE_IN_SINGLE_OUT = 2;
     }
     MapType mapType = 2;
     bytes datapack = 3;

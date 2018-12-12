@@ -14,6 +14,13 @@ type connection_response = {
   request_accepted : bool;
 }
 
+type server_message_action =
+  | User_timeout 
+
+type server_message = {
+  action : server_message_action;
+}
+
 type single_request =
   | Connection_request of connection_request
   | Job_submission of Job_types.job_submission
@@ -26,6 +33,7 @@ type single_response =
   | Data_retrieval_response of Data_types.data_retrieval_response
   | Job_status_response of Status_types.job_status_response
   | Connection_response of connection_response
+  | Server_message of server_message
 
 let rec default_connection_request_action () = (Heartbeat:connection_request_action)
 
@@ -41,6 +49,14 @@ let rec default_connection_response
   ?request_accepted:((request_accepted:bool) = false)
   () : connection_response  = {
   request_accepted;
+}
+
+let rec default_server_message_action () = (User_timeout:server_message_action)
+
+let rec default_server_message 
+  ?action:((action:server_message_action) = default_server_message_action ())
+  () : server_message  = {
+  action;
 }
 
 let rec default_single_request () : single_request = Connection_request (default_connection_request ())

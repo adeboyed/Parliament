@@ -18,6 +18,14 @@ let default_connection_response_mutable () : connection_response_mutable = {
   request_accepted = false;
 }
 
+type server_message_mutable = {
+  mutable action : Connection_types.server_message_action;
+}
+
+let default_server_message_mutable () : server_message_mutable = {
+  action = Connection_types.default_server_message_action ();
+}
+
 
 let rec decode_connection_request_action d = 
   match Pbrt.Decoder.int_as_varint d with
@@ -67,6 +75,29 @@ let rec decode_connection_response d =
     Connection_types.request_accepted = v.request_accepted;
   } : Connection_types.connection_response)
 
+let rec decode_server_message_action d = 
+  match Pbrt.Decoder.int_as_varint d with
+  | 0 -> (Connection_types.User_timeout:Connection_types.server_message_action)
+  | _ -> Pbrt.Decoder.malformed_variant "server_message_action"
+
+let rec decode_server_message d =
+  let v = default_server_message_mutable () in
+  let continue__= ref true in
+  while !continue__ do
+    match Pbrt.Decoder.key d with
+    | None -> (
+    ); continue__ := false
+    | Some (1, Pbrt.Varint) -> begin
+      v.action <- decode_server_message_action d;
+    end
+    | Some (1, pk) -> 
+      Pbrt.Decoder.unexpected_payload "Message(server_message), field(1)" pk
+    | Some (_, payload_kind) -> Pbrt.Decoder.skip d payload_kind
+  done;
+  ({
+    Connection_types.action = v.action;
+  } : Connection_types.server_message)
+
 let rec decode_single_request d = 
   let rec loop () = 
     let ret:Connection_types.single_request = match Pbrt.Decoder.key d with
@@ -93,6 +124,7 @@ let rec decode_single_response d =
       | Some (2, _) -> Connection_types.Data_retrieval_response (Data_pb.decode_data_retrieval_response (Pbrt.Decoder.nested d))
       | Some (3, _) -> Connection_types.Job_status_response (Status_pb.decode_job_status_response (Pbrt.Decoder.nested d))
       | Some (4, _) -> Connection_types.Connection_response (decode_connection_response (Pbrt.Decoder.nested d))
+      | Some (5, _) -> Connection_types.Server_message (decode_server_message (Pbrt.Decoder.nested d))
       | Some (n, payload_kind) -> (
         Pbrt.Decoder.skip d payload_kind; 
         loop () 
@@ -117,6 +149,15 @@ let rec encode_connection_request (v:Connection_types.connection_request) encode
 let rec encode_connection_response (v:Connection_types.connection_response) encoder = 
   Pbrt.Encoder.key (1, Pbrt.Varint) encoder; 
   Pbrt.Encoder.bool v.Connection_types.request_accepted encoder;
+  ()
+
+let rec encode_server_message_action (v:Connection_types.server_message_action) encoder =
+  match v with
+  | Connection_types.User_timeout -> Pbrt.Encoder.int_as_varint (0) encoder
+
+let rec encode_server_message (v:Connection_types.server_message) encoder = 
+  Pbrt.Encoder.key (1, Pbrt.Varint) encoder; 
+  encode_server_message_action v.Connection_types.action encoder;
   ()
 
 let rec encode_single_request (v:Connection_types.single_request) encoder = 
@@ -152,4 +193,7 @@ let rec encode_single_response (v:Connection_types.single_response) encoder =
   | Connection_types.Connection_response x ->
     Pbrt.Encoder.key (4, Pbrt.Bytes) encoder; 
     Pbrt.Encoder.nested (encode_connection_response x) encoder;
+  | Connection_types.Server_message x ->
+    Pbrt.Encoder.key (5, Pbrt.Bytes) encoder; 
+    Pbrt.Encoder.nested (encode_server_message x) encoder;
   end

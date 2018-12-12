@@ -145,7 +145,7 @@ struct
     let response = Connection.send_connection_request hn pt auth in
     match response.connection_accepted with
       true -> 
-      {
+      ref {
         hostname = hn ;
         port = pt;
         connection_status = Connected ;
@@ -153,7 +153,7 @@ struct
         next_job = Int32.one ;
       }
     | false -> 
-      {
+      ref {
         hostname = hn ;
         port = pt;
         connection_status = Unconnected ;
@@ -162,64 +162,65 @@ struct
       }
 
   let validate ctx =
-    match ctx.connection_status with 
-      Connected -> ctx
+    match !ctx.connection_status with 
+      Connected -> ()
     | _ -> (Util.error_print("Context is unconnected to a cluster"); raise NotConnnectedException)  
 
-  let heartbeat ctx_in =
-    let ctx = validate ctx_in in 
+  let heartbeat ctx =
+    validate ctx;
     let single_request = Connection_request(Parli_core_proto.Connection_types.({
-        user_id = ctx.user_id ;
+        user_id = !ctx.user_id ;
         action = Heartbeat ;
       })
       ) in
-    let single_response = Connection.send_single_request ctx.hostname ctx.port single_request in 
+    let single_response = Connection.send_single_request !ctx.hostname !ctx.port single_request in 
     match single_response with
       Connection_response(response) -> (
         if (response.request_accepted) then
-          ctx
+          true
         else
-          {
-            hostname = ctx.hostname ;
-            port = ctx.port ;
-            connection_status = Disconnected ;
-            user_id = "" ;
-            next_job = Int32.one ;
-          }
+          (ctx := {
+              hostname = !ctx.hostname ;
+              port = !ctx.port ;
+              connection_status = Disconnected ;
+              user_id = "" ;
+              next_job = Int32.one ;
+            }; false)
       )
-    | _ -> (Util.error_print("Recieved a response from server not of type ConnectionResponse"); ctx)
+    | _ -> (Util.error_print("Recieved a response from server not of type ConnectionResponse"); false)
 
-  let submit ctx_in workload = 
-    let ctx = validate ctx_in in 
+  let submit ctx workload = 
+    validate ctx;
     let job_count = Int32.succ (Int32.succ (Int32.of_int (List.length workload.job_list))) in
     Util.info_print("Submitting " ^ (string_of_int (Int32.to_int job_count)) ^ " jobs to the cluster");
-    let jobs = Workload.build workload ctx.next_job in
+    let jobs = Workload.build workload !ctx.next_job in
     let single_request = Job_submission(Parli_core_proto.Job_types.({
-        user_id = ctx.user_id;
+        user_id = !ctx.user_id;
         jobs = jobs;
       })
       ) in
-    let running_jobs_list = List.map (fun x -> {job_id = x ; status = Queued}) (Util.range(ctx.next_job) (Int32.add job_count ctx.next_job)) in
-    let single_response = Connection.send_single_request ctx.hostname ctx.port single_request in 
+    let running_jobs_list = List.map (fun x -> {job_id = x ; status = Queued}) (Util.range(!ctx.next_job) (Int32.add job_count !ctx.next_job)) in
+    let single_response = Connection.send_single_request !ctx.hostname !ctx.port single_request in 
     match single_response with
       Job_submission_response(response) -> (
-        if response.job_accepted then ({
-            hostname = ctx.hostname ;
-            port = ctx.port;
-            connection_status = ctx.connection_status ;
-            user_id = ctx.user_id ;
-            next_job = Int32.add job_count ctx.next_job ;
-          }, Some(running_jobs_list))
-        else (ctx, None)
+        if response.job_accepted then (
+          ctx:= {
+            hostname = !ctx.hostname ;
+            port = !ctx.port;
+            connection_status = Connected ;
+            user_id = !ctx.user_id ;
+            next_job = Int32.add job_count !ctx.next_job ;
+          }; Some(running_jobs_list))
+        else None
       )
-    | _ -> (Util.error_print("Recieved a response from server not of type JobSubmissionResponse"); (ctx, None))
+    | _ -> (Util.error_print("Recieved a response from server not of type JobSubmissionResponse"); None)
 
-  let job_status ctx_in jobs =
-    let ctx = validate ctx_in in
-    let single_request = Job_status_request(Parli_core_proto.Job_types.({
-        job_ids = List.map (fun x -> x.job_id) jobs
+  let job_status ctx (jobs:running_job list) =
+    validate ctx;
+    let single_request = Job_status_request({
+        job_ids = List.map (fun (x:running_job) -> x.job_id) jobs
       })
-      ) in
+    in
     let convert_status_from_proto (status:job_status_status) : status =
       match status with
       | Queued  -> Queued
@@ -234,12 +235,10 @@ struct
         job_id = proto.job_id ;
         status = convert_status_from_proto proto.status ;
       } in
-    let single_response = Connection.send_single_request ctx.hostname ctx.port single_request in 
+    let single_response = Connection.send_single_request !ctx.hostname !ctx.port single_request in 
     match single_response with
-      Job_status_response(response) -> (
-        (ctx, Some(List.map proto_to_running_job response.job_status))
-      )
-    | _ -> (Util.error_print("Recieved a response from server not of type Job_status_response"); (ctx, None))
+      Job_status_response(response) -> Some(List.map proto_to_running_job response.job_status)
+    | _ -> (Util.error_print("Recieved a response from server not of type Job_status_response"); None)
 
   let rec all_completed = function
     | [] -> true
@@ -247,27 +246,27 @@ struct
           Completed -> all_completed tail
         | _ -> false)
 
-  let rec wait_until_output ctx_in jobs =
-    let ctx = validate ctx_in in
-    let ctx_out, status_option = job_status ctx jobs in
+  let rec wait_until_output ctx (jobs:running_job list) =
+    validate ctx;
+    let status_option = job_status ctx jobs in
     let status = match status_option with
       | Some(x) -> x
       | None -> raise NotConnnectedException in
     match all_completed status with
       true -> ()
-    | false -> wait_until_output ctx_out jobs
+    | false -> wait_until_output ctx jobs
 
-  let output ctx_in job_id = 
-    let ctx = validate ctx_in in
+  let output ctx job_id = 
+    validate ctx;
     let single_request = Data_retrieval_request(Parli_core_proto.Data_types.({
         job_id = job_id;
       })
       ) in
-    let single_response = Connection.send_single_request ctx.hostname ctx.port single_request in 
+    let single_response = Connection.send_single_request !ctx.hostname !ctx.port single_request in 
     match single_response with
-      Data_retrieval_response(response) -> (
-        (ctx, Some(response.bytes))
-      )
-    | _ -> (Util.error_print("Recieved a response from server not of type Data_retrieval_response"); (ctx, None))
+      Data_retrieval_response(response) -> Some(Datapack.single(response.bytes))
+    | _ -> (Util.error_print("Recieved a response from server not of type Data_retrieval_response"); None)
+
+  let output ctx jobs = output ctx ((List.hd (List.rev jobs)).job_id)
 
 end

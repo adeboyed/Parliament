@@ -18,6 +18,13 @@ message ConnectionResponse {
     bool request_accepted  = 1;
 }
 
+message ServerMessage {
+    enum Action {
+        USER_TIMEOUT = 0;
+    }
+    Action action = 1;
+}
+
 message SingleRequest {
     oneof request {
         ConnectionRequest connection_request = 1;
@@ -34,5 +41,6 @@ message SingleResponse {
         DataRetrievalResponse data_retrieval_response = 2;
         JobStatusResponse job_status_response = 3;
         ConnectionResponse connection_response = 4;
+        ServerMessage server_message = 5;
     }
 }

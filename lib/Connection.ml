@@ -5,6 +5,8 @@
 
 open Unix
 
+exception ConnectionError of string
+
 (* Helper functions *)
 let _open_connection (sockaddr:sockaddr) =
   let sock = Unix.socket Unix.PF_INET Unix.SOCK_STREAM 0 
@@ -20,9 +22,7 @@ let _send_to_master client_fun (server: string) (port:int) =
     try  Unix.inet_addr_of_string server 
     with Failure("inet_addr_of_string") -> 
     try  (Unix.gethostbyname server).Unix.h_addr_list.(0) 
-    with Not_found ->
-      Printf.eprintf "%s : Unknown server\n" server ;
-      exit 2
+    with Not_found -> (raise (ConnectionError "Could not find server from hostname"))
   in try
     let sockaddr = Unix.ADDR_INET(server_addr, port) in 
     let ic,oc = _open_connection sockaddr in
@@ -30,8 +30,8 @@ let _send_to_master client_fun (server: string) (port:int) =
 
     _shutdown_connection ic;
     result
-  with Failure("int_of_string") -> Printf.eprintf "bad port number";
-    exit 2
+  with Failure("int_of_string") -> raise (ConnectionError "Bad port number")
+     | Unix_error(e, _, _) -> raise (ConnectionError ("Could not connect to cluster! " ^ (error_message e) ^ "\nPlease check hostname and port again!" ))
 
 let _request_response request response ic oc  =
   let encoder = Pbrt.Encoder.create () in
