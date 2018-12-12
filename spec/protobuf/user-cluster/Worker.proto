@@ -12,6 +12,6 @@ message WorkerInput {
 }
 
 message WorkerOutput {
-    bytes datapack = 3;
+    repeated bytes datapacks = 3;
 }
 
