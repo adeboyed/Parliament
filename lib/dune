@@ -5,5 +5,5 @@
 (library
  (name        parliament)
   (public_name parliament)
-  (modules util connection door house datapack)
+  (modules util connection workload context door house datapack)
   (libraries core parli_core parli_core_proto))

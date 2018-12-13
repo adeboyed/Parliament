@@ -1,0 +1,3 @@
+(test
+ (name workload_test)
+ (libraries ounit parliament))

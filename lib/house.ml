@@ -35,8 +35,7 @@ let command =
     )
 
 let init_master () =
-  Printf.printf "%s\n" (getenv "PARLIAMENT_MODE");
-  (* Command.run ~version:"1.0" ~build_info:"RWO" command; *)
+  Command.run ~version:"1.0" ~build_info:"RWO" command;
   try (
     let ctx = connect !hostname !port !auth in
     let ic = open_in Sys.argv.(0) in
@@ -93,14 +92,14 @@ let init_worker () =
   with Not_found -> (Util.error_print("Please check you have initialised the correct ENV variables"); exit 3)
 
 let init () =
-  let internal_init =
+  let internal_init () =
     let running_option = getenv "PARLIAMENT_MODE" in
     if Core.Std.String.contains running_option 'W' then 
       init_worker()
     else
       init_master()
   in
-  try internal_init
+  try internal_init()
   with 
     Not_found -> init_master()
   | NotConnnectedException -> (Util.error_print("Application was disconnected during context intialisation!"); exit 2)
