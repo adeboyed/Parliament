@@ -57,6 +57,6 @@ let send_connection_request hostname port auth =
   _send_to_master (_request_response request response) (hostname) (port)
 
 let send_single_request hostname port request_obj = 
-  let request = Parli_core_proto.Connection_pb.encode_single_request request_obj in 
-  let response = Parli_core_proto.Connection_pb.decode_single_response in
+  let request = Parli_core_proto.Connection_pb.encode_single_user_request request_obj in 
+  let response = Parli_core_proto.Connection_pb.decode_single_user_response in
   _send_to_master (_request_response request response) (hostname) (port)

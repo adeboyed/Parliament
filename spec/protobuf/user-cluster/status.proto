@@ -1,22 +1,23 @@
 syntax = "proto3";
 
-message JobStatusRequest {
-    repeated int32 job_ids = 1;
+message UserJobStatusRequest {
+    string user_id = 1;
+    repeated int32 job_ids = 2;
 }
 
-message JobStatus {
-    int32 job_id = 1;
+message UserJobStatus {
+    int32 job_id = 2;
     enum Status {
-        QUEUED = 0;
-        WAITING = 1;
+        BLOCKED = 0;
+        QUEUED = 1;
         RUNNING = 2;
         COMPLETED = 4;
-        ERRORED = 5;
+        HALTED = 5;
         CANCELLED = 6;
     }
-    Status status = 2;
+    Status status = 3;
 }
 
-message JobStatusResponse {
-    repeated JobStatus jobStatus = 1;
+message UserJobStatusResponse {
+    repeated UserJobStatus job_statuses = 1;
 }

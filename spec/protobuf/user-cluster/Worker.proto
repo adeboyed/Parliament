@@ -7,7 +7,7 @@ message WorkerInput {
         SINGLE_IN_SINGLE_OUT = 1;
         VARIABLE_IN_SINGLE_OUT = 2;
     }
-    MapType mapType = 2;
+    MapType map_type = 2;
     bytes datapack = 3;
 }
 

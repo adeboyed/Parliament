@@ -71,7 +71,7 @@ let rec decode_map_action_map_type d =
   match Pbrt.Decoder.int_as_varint d with
   | 0 -> (Job_types.Single_in_variable_out:Job_types.map_action_map_type)
   | 1 -> (Job_types.Single_in_single_out:Job_types.map_action_map_type)
-  | 2 -> (Job_types.Variable_in_variable_out:Job_types.map_action_map_type)
+  | 2 -> (Job_types.Variable_in_single_out:Job_types.map_action_map_type)
   | _ -> Pbrt.Decoder.malformed_variant "map_action_map_type"
 
 let rec decode_map_action d =
@@ -200,7 +200,7 @@ let rec encode_map_action_map_type (v:Job_types.map_action_map_type) encoder =
   match v with
   | Job_types.Single_in_variable_out -> Pbrt.Encoder.int_as_varint (0) encoder
   | Job_types.Single_in_single_out -> Pbrt.Encoder.int_as_varint 1 encoder
-  | Job_types.Variable_in_variable_out -> Pbrt.Encoder.int_as_varint 2 encoder
+  | Job_types.Variable_in_single_out -> Pbrt.Encoder.int_as_varint 2 encoder
 
 let rec encode_map_action (v:Job_types.map_action) encoder = 
   Pbrt.Encoder.key (1, Pbrt.Varint) encoder; 

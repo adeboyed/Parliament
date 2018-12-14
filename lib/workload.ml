@@ -82,7 +82,7 @@ let build wl starting_id =
   let build_job job prev_id = 
     let map_type_val, function_closure = (match job with
           SingleInSingleOut(closure) -> Single_in_variable_out, closure
-        | VariableInSingleOut(closure) -> Variable_in_variable_out, closure
+        | VariableInSingleOut(closure) -> Variable_in_single_out, closure
         | SingleInVariableOut(closure) -> Single_in_variable_out, closure)
     in
     let closure = Marshal.to_bytes function_closure [Compat_32; Closures] in

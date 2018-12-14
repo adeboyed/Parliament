@@ -10,6 +10,7 @@ open Parli_core_proto.Connection_types
 
 (* TYPES *)
 exception NotConnnectedException
+exception JobErroredException
 
 type connection_status = Unconnected
                        | Connected
@@ -24,11 +25,11 @@ type context = {
 }
 
 type status =
+    Blocked
   | Queued 
-  | Waiting 
   | Running 
   | Completed 
-  | Errored 
+  | Halted
   | Cancelled
 
 type running_job = {
@@ -115,33 +116,39 @@ let submit ctx workload =
 let job_status ctx (jobs:running_job list) =
   validate ctx;
   let single_request = Job_status_request({
+      user_id = !ctx.user_id;
       job_ids = List.map (fun (x:running_job) -> x.job_id) jobs
     })
   in
-  let convert_status_from_proto (status:job_status_status) : status =
+  let convert_status_from_proto (status:user_job_status_status) : status =
     match status with
+      Blocked -> Blocked
     | Queued  -> Queued
-    | Waiting -> Waiting
     | Running -> Running
     | Completed -> Completed
-    | Errored -> Errored
+    | Halted -> Halted
     | Cancelled -> Cancelled
   in
-  let proto_to_running_job (proto: job_status) =
+  let proto_to_running_job (proto: user_job_status) =
     {
       job_id = proto.job_id ;
       status = convert_status_from_proto proto.status ;
     } in
   let single_response = Connection.send_single_request !ctx.hostname !ctx.port single_request in 
   match single_response with
-    Job_status_response(response) -> Some(List.map proto_to_running_job response.job_status)
+    Job_status_response(response) -> Some(List.map proto_to_running_job response.job_statuses)
   | _ -> (Util.error_print("Recieved a response from server not of type Job_status_response"); None)
 
 let rec all_completed = function
   | [] -> true
-  | h::tail -> (match h.status with
-        Completed -> all_completed tail
-      | _ -> false)
+  | {status = Completed; job_id =  _}::tail -> all_completed tail
+  | _ -> false
+
+let rec cancelled_or_halted = function
+  | [] -> false
+  | {status = Cancelled; job_id =  _}::_ -> true
+  | {status = Halted; job_id =  _}::_ -> true
+  | _::tail -> cancelled_or_halted tail
 
 let rec wait_until_output ctx (jobs:running_job list) =
   validate ctx;
@@ -149,9 +156,10 @@ let rec wait_until_output ctx (jobs:running_job list) =
   let status = match status_option with
     | Some(x) -> x
     | None -> raise NotConnnectedException in
-  match all_completed status with
-    true -> ()
-  | false -> wait_until_output ctx jobs
+  match (all_completed status, cancelled_or_halted status) with
+    true, _ -> ()
+  | false, true -> raise JobErroredException
+  | false, false -> wait_until_output ctx jobs
 
 let output ctx job_id = 
   validate ctx;

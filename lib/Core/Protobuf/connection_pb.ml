@@ -98,15 +98,16 @@ let rec decode_server_message d =
     Connection_types.action = v.action;
   } : Connection_types.server_message)
 
-let rec decode_single_request d = 
+let rec decode_single_user_request d = 
   let rec loop () = 
-    let ret:Connection_types.single_request = match Pbrt.Decoder.key d with
-      | None -> Pbrt.Decoder.malformed_variant "single_request"
-      | Some (1, _) -> Connection_types.Connection_request (decode_connection_request (Pbrt.Decoder.nested d))
-      | Some (2, _) -> Connection_types.Job_submission (Job_pb.decode_job_submission (Pbrt.Decoder.nested d))
-      | Some (3, _) -> Connection_types.Data_retrieval_request (Data_pb.decode_data_retrieval_request (Pbrt.Decoder.nested d))
-      | Some (4, _) -> Connection_types.Job_status_request (Status_pb.decode_job_status_request (Pbrt.Decoder.nested d))
-      | Some (5, _) -> Connection_types.Executable_request (Create_connection_pb.decode_executable_request (Pbrt.Decoder.nested d))
+    let ret:Connection_types.single_user_request = match Pbrt.Decoder.key d with
+      | None -> Pbrt.Decoder.malformed_variant "single_user_request"
+      | Some (1, _) -> Connection_types.Create_connection_request (Create_connection_pb.decode_create_connection_request (Pbrt.Decoder.nested d))
+      | Some (2, _) -> Connection_types.Connection_request (decode_connection_request (Pbrt.Decoder.nested d))
+      | Some (3, _) -> Connection_types.Job_submission (Job_pb.decode_job_submission (Pbrt.Decoder.nested d))
+      | Some (4, _) -> Connection_types.Data_retrieval_request (Data_pb.decode_data_retrieval_request (Pbrt.Decoder.nested d))
+      | Some (5, _) -> Connection_types.Job_status_request (Status_pb.decode_user_job_status_request (Pbrt.Decoder.nested d))
+      | Some (6, _) -> Connection_types.Executable_request (Create_connection_pb.decode_executable_request (Pbrt.Decoder.nested d))
       | Some (n, payload_kind) -> (
         Pbrt.Decoder.skip d payload_kind; 
         loop () 
@@ -116,15 +117,16 @@ let rec decode_single_request d =
   in
   loop ()
 
-let rec decode_single_response d = 
+let rec decode_single_user_response d = 
   let rec loop () = 
-    let ret:Connection_types.single_response = match Pbrt.Decoder.key d with
-      | None -> Pbrt.Decoder.malformed_variant "single_response"
-      | Some (1, _) -> Connection_types.Job_submission_response (Job_pb.decode_job_submission_response (Pbrt.Decoder.nested d))
-      | Some (2, _) -> Connection_types.Data_retrieval_response (Data_pb.decode_data_retrieval_response (Pbrt.Decoder.nested d))
-      | Some (3, _) -> Connection_types.Job_status_response (Status_pb.decode_job_status_response (Pbrt.Decoder.nested d))
-      | Some (4, _) -> Connection_types.Connection_response (decode_connection_response (Pbrt.Decoder.nested d))
-      | Some (5, _) -> Connection_types.Server_message (decode_server_message (Pbrt.Decoder.nested d))
+    let ret:Connection_types.single_user_response = match Pbrt.Decoder.key d with
+      | None -> Pbrt.Decoder.malformed_variant "single_user_response"
+      | Some (1, _) -> Connection_types.Create_connection_response (Create_connection_pb.decode_create_connection_response (Pbrt.Decoder.nested d))
+      | Some (2, _) -> Connection_types.Job_submission_response (Job_pb.decode_job_submission_response (Pbrt.Decoder.nested d))
+      | Some (3, _) -> Connection_types.Data_retrieval_response (Data_pb.decode_data_retrieval_response (Pbrt.Decoder.nested d))
+      | Some (4, _) -> Connection_types.Job_status_response (Status_pb.decode_user_job_status_response (Pbrt.Decoder.nested d))
+      | Some (5, _) -> Connection_types.Connection_response (decode_connection_response (Pbrt.Decoder.nested d))
+      | Some (6, _) -> Connection_types.Server_message (decode_server_message (Pbrt.Decoder.nested d))
       | Some (n, payload_kind) -> (
         Pbrt.Decoder.skip d payload_kind; 
         loop () 
@@ -160,40 +162,46 @@ let rec encode_server_message (v:Connection_types.server_message) encoder =
   encode_server_message_action v.Connection_types.action encoder;
   ()
 
-let rec encode_single_request (v:Connection_types.single_request) encoder = 
+let rec encode_single_user_request (v:Connection_types.single_user_request) encoder = 
   begin match v with
-  | Connection_types.Connection_request x ->
+  | Connection_types.Create_connection_request x ->
     Pbrt.Encoder.key (1, Pbrt.Bytes) encoder; 
+    Pbrt.Encoder.nested (Create_connection_pb.encode_create_connection_request x) encoder;
+  | Connection_types.Connection_request x ->
+    Pbrt.Encoder.key (2, Pbrt.Bytes) encoder; 
     Pbrt.Encoder.nested (encode_connection_request x) encoder;
   | Connection_types.Job_submission x ->
-    Pbrt.Encoder.key (2, Pbrt.Bytes) encoder; 
+    Pbrt.Encoder.key (3, Pbrt.Bytes) encoder; 
     Pbrt.Encoder.nested (Job_pb.encode_job_submission x) encoder;
   | Connection_types.Data_retrieval_request x ->
-    Pbrt.Encoder.key (3, Pbrt.Bytes) encoder; 
+    Pbrt.Encoder.key (4, Pbrt.Bytes) encoder; 
     Pbrt.Encoder.nested (Data_pb.encode_data_retrieval_request x) encoder;
   | Connection_types.Job_status_request x ->
-    Pbrt.Encoder.key (4, Pbrt.Bytes) encoder; 
-    Pbrt.Encoder.nested (Status_pb.encode_job_status_request x) encoder;
-  | Connection_types.Executable_request x ->
     Pbrt.Encoder.key (5, Pbrt.Bytes) encoder; 
+    Pbrt.Encoder.nested (Status_pb.encode_user_job_status_request x) encoder;
+  | Connection_types.Executable_request x ->
+    Pbrt.Encoder.key (6, Pbrt.Bytes) encoder; 
     Pbrt.Encoder.nested (Create_connection_pb.encode_executable_request x) encoder;
   end
 
-let rec encode_single_response (v:Connection_types.single_response) encoder = 
+let rec encode_single_user_response (v:Connection_types.single_user_response) encoder = 
   begin match v with
-  | Connection_types.Job_submission_response x ->
+  | Connection_types.Create_connection_response x ->
     Pbrt.Encoder.key (1, Pbrt.Bytes) encoder; 
+    Pbrt.Encoder.nested (Create_connection_pb.encode_create_connection_response x) encoder;
+  | Connection_types.Job_submission_response x ->
+    Pbrt.Encoder.key (2, Pbrt.Bytes) encoder; 
     Pbrt.Encoder.nested (Job_pb.encode_job_submission_response x) encoder;
   | Connection_types.Data_retrieval_response x ->
-    Pbrt.Encoder.key (2, Pbrt.Bytes) encoder; 
+    Pbrt.Encoder.key (3, Pbrt.Bytes) encoder; 
     Pbrt.Encoder.nested (Data_pb.encode_data_retrieval_response x) encoder;
   | Connection_types.Job_status_response x ->
-    Pbrt.Encoder.key (3, Pbrt.Bytes) encoder; 
-    Pbrt.Encoder.nested (Status_pb.encode_job_status_response x) encoder;
-  | Connection_types.Connection_response x ->
     Pbrt.Encoder.key (4, Pbrt.Bytes) encoder; 
+    Pbrt.Encoder.nested (Status_pb.encode_user_job_status_response x) encoder;
+  | Connection_types.Connection_response x ->
+    Pbrt.Encoder.key (5, Pbrt.Bytes) encoder; 
     Pbrt.Encoder.nested (encode_connection_response x) encoder;
   | Connection_types.Server_message x ->
-    Pbrt.Encoder.key (5, Pbrt.Bytes) encoder; 
+    Pbrt.Encoder.key (6, Pbrt.Bytes) encoder; 
     Pbrt.Encoder.nested (encode_server_message x) encoder;
   end
