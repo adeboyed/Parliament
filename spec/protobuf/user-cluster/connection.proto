@@ -21,6 +21,8 @@ message ConnectionResponse {
 message ServerMessage {
     enum Action {
         USER_TIMEOUT = 0;
+        MISSING_JOBS = 1;
+        INTERNAL_SERVER_ERROR = 2;
     }
     Action action = 1;
 }

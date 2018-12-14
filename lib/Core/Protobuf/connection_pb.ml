@@ -78,6 +78,8 @@ let rec decode_connection_response d =
 let rec decode_server_message_action d = 
   match Pbrt.Decoder.int_as_varint d with
   | 0 -> (Connection_types.User_timeout:Connection_types.server_message_action)
+  | 1 -> (Connection_types.Missing_jobs:Connection_types.server_message_action)
+  | 2 -> (Connection_types.Internal_server_error:Connection_types.server_message_action)
   | _ -> Pbrt.Decoder.malformed_variant "server_message_action"
 
 let rec decode_server_message d =
@@ -156,6 +158,8 @@ let rec encode_connection_response (v:Connection_types.connection_response) enco
 let rec encode_server_message_action (v:Connection_types.server_message_action) encoder =
   match v with
   | Connection_types.User_timeout -> Pbrt.Encoder.int_as_varint (0) encoder
+  | Connection_types.Missing_jobs -> Pbrt.Encoder.int_as_varint 1 encoder
+  | Connection_types.Internal_server_error -> Pbrt.Encoder.int_as_varint 2 encoder
 
 let rec encode_server_message (v:Connection_types.server_message) encoder = 
   Pbrt.Encoder.key (1, Pbrt.Varint) encoder; 

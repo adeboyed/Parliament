@@ -11,6 +11,8 @@ open Parli_core_proto.Connection_types
 (* TYPES *)
 exception NotConnnectedException
 exception JobErroredException
+exception JobSubmissionException
+exception InternalServerError
 
 type connection_status = Unconnected
                        | Connected
@@ -85,6 +87,10 @@ let heartbeat ctx =
             next_job = Int32.one ;
           }; false)
     )
+  | Server_message({action = Internal_server_error }) -> (
+      Util.error_print("Recieved an internal server error!");
+      raise InternalServerError
+    )
   | _ -> (Util.error_print("Recieved a response from server not of type ConnectionResponse"); false)
 
 let submit ctx workload = 
@@ -111,7 +117,11 @@ let submit ctx workload =
         }; Some(running_jobs_list))
       else None
     )
-  | _ -> (Util.error_print("Recieved a response from server not of type JobSubmissionResponse"); None)
+  | Server_message({action = Internal_server_error }) -> (
+      Util.error_print("Recieved an internal server error!");
+      raise InternalServerError
+    )
+  |_ -> (Util.error_print("Recieved a response from server not of type JobSubmissionResponse"); None)
 
 let job_status ctx (jobs:running_job list) =
   validate ctx;
@@ -137,6 +147,14 @@ let job_status ctx (jobs:running_job list) =
   let single_response = Connection.send_single_request !ctx.hostname !ctx.port single_request in 
   match single_response with
     Job_status_response(response) -> Some(List.map proto_to_running_job response.job_statuses)
+  | Server_message({action = Internal_server_error }) -> (
+      Util.error_print("Recieved an internal server error!");
+      raise InternalServerError
+    )
+  | Server_message({action = Missing_jobs }) -> (
+      Util.error_print("Server cannot find all of the jobs, raising exception...");
+      raise JobSubmissionException
+    )
   | _ -> (Util.error_print("Recieved a response from server not of type Job_status_response"); None)
 
 let rec all_completed = function
@@ -169,7 +187,11 @@ let output ctx job_id =
     ) in
   let single_response = Connection.send_single_request !ctx.hostname !ctx.port single_request in 
   match single_response with
-    Data_retrieval_response(response) -> Some(Datapack.single(response.bytes))
+    Data_retrieval_response(response) -> Some(Datapack.single_item response.bytes)
+  | Server_message({action = Internal_server_error }) -> (
+      Util.error_print("Recieved an internal server error!");
+      raise InternalServerError
+    )
   | _ -> (Util.error_print("Recieved a response from server not of type Data_retrieval_response"); None)
 
 let output ctx jobs = output ctx ((List.hd (List.rev jobs)).job_id)

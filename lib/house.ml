@@ -74,13 +74,12 @@ let init_worker () =
     in
     let file_out = getenv "PARLIAMENT_OUTPUT" in
     let worker_input = Parli_core_proto.Worker_pb.decode_worker_input(Pbrt.Decoder.of_bytes bytes_in) in
-    let datapack_in : datapack = Marshal.from_bytes worker_input.datapack 0 in 
+    let datapack_in : datapack = create_direct worker_input.datapack in
     let job_func : (datapack -> datapack) = Marshal.from_bytes worker_input.function_closure 0 in
     let datapack_out = job_func datapack_in in
     validate_output worker_input.map_type datapack_out;
-    let datapack_out_list = List.map (fun x -> Datapack.single x) (Array.to_list datapack_out.data) in
     let worker_output = Parli_core_proto.Worker_types.({
-        datapacks = List.map (fun x -> Marshal.to_bytes x [Compat_32]) datapack_out_list
+        datapacks = Array.to_list datapack_out.data
       }) in
     let encoder = Pbrt.Encoder.create () in
     Parli_core_proto.Worker_pb.encode_worker_output worker_output encoder;

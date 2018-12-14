@@ -16,6 +16,8 @@ type connection_response = {
 
 type server_message_action =
   | User_timeout 
+  | Missing_jobs 
+  | Internal_server_error 
 
 type server_message = {
   action : server_message_action;

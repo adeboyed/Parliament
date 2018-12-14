@@ -8,7 +8,7 @@ message WorkerInput {
         VARIABLE_IN_SINGLE_OUT = 2;
     }
     MapType map_type = 2;
-    bytes datapack = 3;
+    repeated bytes datapacks = 3;
 }
 
 message WorkerOutput {
