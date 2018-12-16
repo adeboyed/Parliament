@@ -42,24 +42,41 @@ type running_job = {
 (* FUNCTIONS *)
 
 let connect hn pt auth =
-  let response = Connection.send_connection_request hn pt auth in
-  match response.connection_accepted with
-    true -> 
-    ref {
-      hostname = hn ;
-      port = pt;
-      connection_status = Connected ;
-      user_id = response.user_id ;
-      next_job = Int32.one ;
-    }
-  | false -> 
-    ref {
+  let single_request = Create_connection_request(Parli_core_proto.Create_connection_types.({ 
+      authentication = auth
+    })) in
+  let single_response = Connection.send_single_request hn pt single_request in
+  match single_response with
+    Create_connection_response(response) -> (
+      match response.connection_accepted with
+        true -> 
+        ref {
+          hostname = hn ;
+          port = pt;
+          connection_status = Connected ;
+          user_id = response.user_id ;
+          next_job = Int32.one ;
+        }
+      | false -> 
+        ref {
+          hostname = hn ;
+          port = pt;
+          connection_status = Unconnected ;
+          user_id = "" ;
+          next_job = Int32.one ;
+        }
+    )
+  | Server_message({action = Internal_server_error }) -> (
+      Util.error_print("Recieved an internal server error!");
+      raise InternalServerError
+    )
+  | _ -> (Util.error_print("Recieved a response from server not of type ConnectionResponse"); ref {
       hostname = hn ;
       port = pt;
       connection_status = Unconnected ;
-      user_id = response.user_id ;
+      user_id = "" ;
       next_job = Int32.one ;
-    }
+    })
 
 let validate ctx =
   match !ctx.connection_status with 
@@ -182,6 +199,7 @@ let rec wait_until_output ctx (jobs:running_job list) =
 let output ctx job_id = 
   validate ctx;
   let single_request = Data_retrieval_request(Parli_core_proto.Data_types.({
+      user_id = !ctx.user_id;
       job_id = job_id;
     })
     ) in
@@ -195,6 +213,3 @@ let output ctx job_id =
   | _ -> (Util.error_print("Recieved a response from server not of type Data_retrieval_response"); None)
 
 let output ctx jobs = output ctx ((List.hd (List.rev jobs)).job_id)
-
-
-(* TESTS *)

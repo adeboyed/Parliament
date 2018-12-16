@@ -1,6 +1,5 @@
 open Parliament
 open Parliament.Door.Workload
-open Parli_core_proto.Job_types
 
 open OUnit
 

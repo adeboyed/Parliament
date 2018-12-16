@@ -36,26 +36,21 @@ let _send_to_master client_fun (server: string) (port:int) =
 let _request_response request response ic oc  =
   let encoder = Pbrt.Encoder.create () in
   request encoder;
-  output_bytes oc (Pbrt.Encoder.to_bytes encoder);
-  close_out oc;
+  let bytes_out = Pbrt.Encoder.to_bytes encoder in
+  let bytes_len = (Bytes.length bytes_out) in 
+  print_int bytes_len;
+  output_binary_int oc bytes_len;
+  output_bytes oc bytes_out;
+  flush oc;
   let bytes = 
-    let len = in_channel_length ic in 
+    let len = input_binary_int ic in 
     let bytes = Bytes.create len in 
     really_input ic bytes 0 len; 
-    close_in ic; 
     bytes 
-  in 
+  in
   response (Pbrt.Decoder.of_bytes bytes)
+
 (* Actual useful functions *)
-
-let send_connection_request hostname port auth =
-  let request_obj = Parli_core_proto.Create_connection_types.({ 
-      authentication = auth
-    }) in
-  let request = Parli_core_proto.Create_connection_pb.encode_create_connection_request request_obj in 
-  let response = Parli_core_proto.Create_connection_pb.decode_create_connection_response in
-  _send_to_master (_request_response request response) (hostname) (port)
-
 let send_single_request hostname port request_obj = 
   let request = Parli_core_proto.Connection_pb.encode_single_user_request request_obj in 
   let response = Parli_core_proto.Connection_pb.decode_single_user_response in

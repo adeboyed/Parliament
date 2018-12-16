@@ -7,7 +7,7 @@ open Sys
 open Door.Context
 open Datapack
 open Core
-open Parli_core_proto.Connection_types
+(* open Parli_core_proto.Connection_types *)
 open Parli_core_proto.Worker_types
 
 let hostname = ref ""
@@ -37,22 +37,22 @@ let command =
 let init_master () =
   Command.run ~version:"1.0" ~build_info:"RWO" command;
   try (
-    let ctx = connect !hostname !port !auth in
-    let ic = open_in Sys.argv.(0) in
+    connect !hostname !port !auth
+    (* let ic = open_in Sys.argv.(0) in
 
-    let len = in_channel_length ic in 
-    let bytes = Bytes.create len in 
-    really_input ic bytes 0 len;
+       let len = in_channel_length ic in 
+       let bytes = Bytes.create len in 
+       really_input ic bytes 0 len;
 
-    let single_request = Executable_request(Parli_core_proto.Create_connection_types.({
+       let single_request = Executable_request(Parli_core_proto.Create_connection_types.({
         user_id = !ctx.user_id;
         executable = bytes;
-      })
-      ) in
-    let single_response = Connection.send_single_request !ctx.hostname !ctx.port single_request in
-    match single_response with
-      Connection_response({request_accepted = true}) -> ctx
-    |_ -> (Util.error_print("Could not submit! Quitting..."); exit 2)
+       })
+       ) in
+       let single_response = Connection.send_single_request !ctx.hostname !ctx.port single_request in
+       match single_response with
+       Connection_response({request_accepted = true}) -> ctx
+       |_ -> (Util.error_print("Could not submit! Quitting..."); exit 2) *)
   )
   with Connection.ConnectionError(e) -> (Util.error_print(e); exit 2)
 
