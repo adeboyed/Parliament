@@ -38,7 +38,6 @@ let _request_response request response ic oc  =
   request encoder;
   let bytes_out = Pbrt.Encoder.to_bytes encoder in
   let bytes_len = (Bytes.length bytes_out) in 
-  print_int bytes_len;
   output_binary_int oc bytes_len;
   output_bytes oc bytes_out;
   flush oc;
@@ -49,9 +48,23 @@ let _request_response request response ic oc  =
     bytes 
   in
   response (Pbrt.Decoder.of_bytes bytes)
+(* 
+let retry_handler func:(unit -> 'a) (retry_count) = 
+  let rec retry current_count = 
+    try (func())
+    with ConnectionError(e) -> (
+        Util.error_print("Recieved error, retrying..." ^ e);
+        if (current_count > retry_count) then
+          raise (ConnectionError e)
+        else 
+          retry current_count+1
+      ) in
+  retry 0 *)
 
 (* Actual useful functions *)
 let send_single_request hostname port request_obj = 
   let request = Parli_core_proto.Connection_pb.encode_single_user_request request_obj in 
   let response = Parli_core_proto.Connection_pb.decode_single_user_response in
   _send_to_master (_request_response request response) (hostname) (port)
+(* retry_handler func 5 *)
+

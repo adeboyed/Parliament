@@ -49,7 +49,7 @@ let connect hn pt auth =
   match single_response with
     Create_connection_response(response) -> (
       match response.connection_accepted with
-        true -> 
+        true -> Util.debug_print("Connected to server as user " ^ response.user_id);
         ref {
           hostname = hn ;
           port = pt;
@@ -112,15 +112,16 @@ let heartbeat ctx =
 
 let submit ctx workload = 
   validate ctx;
-  let job_count = Int32.succ (Int32.succ (Int32.of_int (List.length workload.job_list))) in
+  let job_count = Int32.of_int (List.length workload.job_list) in
   Util.info_print("Submitting " ^ (string_of_int (Int32.to_int job_count)) ^ " jobs to the cluster");
+
   let jobs = Workload.build workload !ctx.next_job in
   let single_request = Job_submission(Parli_core_proto.Job_types.({
       user_id = !ctx.user_id;
       jobs = jobs;
     })
     ) in
-  let running_jobs_list = List.map (fun x -> {job_id = x ; status = Queued}) (Util.range(!ctx.next_job) (Int32.add job_count !ctx.next_job)) in
+  let running_jobs_list = List.tl (List.map (fun x -> {job_id = x ; status = Queued}) (Util.range(!ctx.next_job) (Int32.add job_count !ctx.next_job))) in
   let single_response = Connection.send_single_request !ctx.hostname !ctx.port single_request in 
   match single_response with
     Job_submission_response(response) -> (
@@ -194,7 +195,7 @@ let rec wait_until_output ctx (jobs:running_job list) =
   match (all_completed status, cancelled_or_halted status) with
     true, _ -> ()
   | false, true -> raise JobErroredException
-  | false, false -> wait_until_output ctx jobs
+  | false, false -> (Util.minisleep 0.3; wait_until_output ctx jobs)
 
 let output ctx job_id = 
   validate ctx;

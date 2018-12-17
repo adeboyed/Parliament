@@ -20,3 +20,6 @@ let debug_print (str:string) =
   match debug with
   | true -> Printf.printf "[PARLIAMENT debug] %s \n" str
   | false -> ()
+
+let minisleep (sec: float) =
+  ignore (Unix.select [] [] [] sec)
