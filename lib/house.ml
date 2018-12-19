@@ -67,7 +67,7 @@ let validate_output map_type datapack =
 let init_worker () = 
   try (
     let bytes_in = 
-      let len = in_channel_length stdin in 
+      let len = input_binary_int stdin in 
       let bytes = Bytes.create len in 
       really_input stdin bytes 0 len; 
       bytes 
@@ -78,6 +78,7 @@ let init_worker () =
     let job_func : (datapack -> datapack) = Marshal.from_bytes worker_input.function_closure 0 in
     let datapack_out = job_func datapack_in in
     validate_output worker_input.map_type datapack_out;
+    Util.info_print ("No of outputs: " ^ (string_of_int (Array.length datapack_out.data)) ); 
     let worker_output = Parli_core_proto.Worker_types.({
         datapacks = Array.to_list datapack_out.data
       }) in
@@ -85,10 +86,11 @@ let init_worker () =
     Parli_core_proto.Worker_pb.encode_worker_output worker_output encoder;
     let oc = open_out file_out in
     output_bytes oc (Pbrt.Encoder.to_bytes encoder);
+    flush oc;
     close_out oc;
     exit 0
   )
-  with Not_found -> (Util.error_print("Please check you have initialised the correct ENV variables"); exit 3)
+  with Not_found -> (Util.error_print "Please check you have initialised the correct ENV variables"; exit 201)
 
 let init () =
   let internal_init () =
@@ -101,5 +103,5 @@ let init () =
   try internal_init()
   with 
     Not_found -> init_master()
-  | NotConnnectedException -> (Util.error_print("Application was disconnected during context intialisation!"); exit 2)
+  | NotConnnectedException -> (Util.error_print("Application was disconnected during context intialisation!"); exit 200)
 

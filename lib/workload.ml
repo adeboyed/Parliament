@@ -71,7 +71,7 @@ let validate wl =
 
 let build wl starting_id =
   validate wl;
-  let input_bytes = Marshal.to_bytes(wl.input) ([Compat_32]) in
+  let input_bytes = wl.input.data.(0) in
   let input_job = Parli_core_proto.Job_types.({
       job_id = starting_id;
       action = Input(Parli_core_proto.Job_types.({
@@ -81,7 +81,7 @@ let build wl starting_id =
     }) in
   let build_job job prev_id = 
     let map_type_val, function_closure = (match job with
-          SingleInSingleOut(closure) -> Single_in_variable_out, closure
+          SingleInSingleOut(closure) -> Single_in_single_out, closure
         | VariableInSingleOut(closure) -> Variable_in_single_out, closure
         | SingleInVariableOut(closure) -> Single_in_variable_out, closure)
     in
@@ -95,29 +95,13 @@ let build wl starting_id =
           })
           )
       }) in
+  let ending_id = Int32.pred (Int32.add starting_id (Int32.of_int (List.length wl.job_list))) in
   let rec build_jobs acc id = function 
     | [] -> acc
-    | h::tail -> build_jobs ((build_job(h) (id))::acc) (Int32.add Int32.one id) (tail) 
+    | h::tail -> build_jobs ((build_job(h) (id))::acc) (Int32.pred id) (tail) 
   in
 
-  input_job::(build_jobs ([]) (starting_id) (wl.job_list))
+  input_job::(build_jobs ([]) (ending_id) (wl.job_list))
 
 (* TESTS *)
-
-(* let%test_module _ = 
-   (module struct
-    open Workload
-
-    let multi_datapack = Datapack.create 2
-    let single_datapack = Datapack.create 1
-
-
-    let%test _ = (
-      try (validate (input single_datapack); false)
-      with MustHaveAtLeastOneJob -> true
-    )
-
-
-
-   end) *)
 

@@ -49,7 +49,7 @@ let connect hn pt auth =
   match single_response with
     Create_connection_response(response) -> (
       match response.connection_accepted with
-        true -> Util.debug_print("Connected to server as user " ^ response.user_id);
+        true -> Util.info_print("Connected to server as user " ^ response.user_id);
         ref {
           hostname = hn ;
           port = pt;
@@ -195,7 +195,7 @@ let rec wait_until_output ctx (jobs:running_job list) =
   match (all_completed status, cancelled_or_halted status) with
     true, _ -> ()
   | false, true -> raise JobErroredException
-  | false, false -> (Util.minisleep 0.3; wait_until_output ctx jobs)
+  | false, false -> (Util.minisleep 2.0; wait_until_output ctx jobs)
 
 let output ctx job_id = 
   validate ctx;
@@ -206,7 +206,7 @@ let output ctx job_id =
     ) in
   let single_response = Connection.send_single_request !ctx.hostname !ctx.port single_request in 
   match single_response with
-    Data_retrieval_response(response) -> Some(Datapack.single_item response.bytes)
+    Data_retrieval_response(response) -> Some(Datapack.create_direct [response.bytes])
   | Server_message({action = Internal_server_error }) -> (
       Util.error_print("Recieved an internal server error!");
       raise InternalServerError
