@@ -1,6 +1,7 @@
 open Parliament
 open Parliament.Door.Workload
 
+
 open OUnit
 
 let suite =
@@ -76,7 +77,38 @@ let suite =
         in
         let jobs = build workload Int32.one in 
         match jobs with
-          [{ map_type}] -> ()
+          [
+            {
+              job_id = (Int32.of_int 1);
+              action = Input({
+                  data_loc_in = _
+                })
+            };
+            {
+              job_id = (Int32.of_int 2);
+              action = Map({
+                  map_type = Single_in_variable_out ;
+                  job_id_in = Int32.of_int 1 ;
+                  function_closure = _
+                })
+            };
+            {
+              job_id = (Int32.of_int 3);
+              action = Map({
+                  map_type = Single_in_single_out ;
+                  job_id_in = Int32.of_int 2 ;
+                  function_closure = _
+                })
+            }
+              {
+                job_id = (Int32.of_int 4);
+                action = Map({
+                    map_type = Variable_in_single_out ;
+                    job_id_in = Int32.of_int 3 ;
+                    function_closure = _
+                  })
+              }
+          ] -> ()
         | _ -> assert_failure "Incorrect "
        ); *)
   ]

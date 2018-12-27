@@ -5,8 +5,8 @@ import "Job.proto";
 import "Status.proto";
 
 message CreateConnectionRequest {
-    string authentication = 2;
-    // Currently not implemented but there for future
+    string authentication = 1;
+    string docker_name = 2;
 }
 message CreateConnectionResponse {
     string user_id = 1;

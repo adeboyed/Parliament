@@ -27,5 +27,5 @@ let single_item a = {
   data = Array.make 1 (marshal a)
 }
 
-let add_single_item x n datapack = datapack.data.(n) <- marshal x
-let get_single_item x datapack = unmarshal datapack.data.(x)
+let add_item datapack x n  = datapack.data.(n) <- marshal x
+let get_item datapack x  = unmarshal datapack.data.(x)

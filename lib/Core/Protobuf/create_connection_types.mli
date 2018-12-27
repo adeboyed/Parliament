@@ -6,6 +6,7 @@
 
 type create_connection_request = {
   authentication : string;
+  docker_name : string;
 }
 
 type create_connection_response = {
@@ -23,6 +24,7 @@ type executable_request = {
 
 val default_create_connection_request : 
   ?authentication:string ->
+  ?docker_name:string ->
   unit ->
   create_connection_request
 (** [default_create_connection_request ()] is the default value for type [create_connection_request] *)

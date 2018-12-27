@@ -1,4 +1,4 @@
 (library
- (name        parli_core_proto)
+ (name        parliament_proto)
   (public_name parliament.core.protobuf)
   (libraries ocaml-protoc))

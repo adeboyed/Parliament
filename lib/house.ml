@@ -7,12 +7,13 @@ open Sys
 open Door.Context
 open Datapack
 open Core
-(* open Parli_core_proto.Connection_types *)
-open Parli_core_proto.Worker_types
+(* open Parliament_proto.Connection_types *)
+open Parliament_proto.Worker_types
 
 let hostname = ref ""
 let port = ref 0
 let auth = ref ""
+let docker = ref ""
 
 exception IncorrectNumberOfOutputs
 
@@ -23,28 +24,30 @@ let spec =
   +> flag "-h" (required string) ~doc:"STRING Cluster Hostname"
   +> flag "-p" (required int) ~doc:"INTEGER Cluster Port"
   +> flag "-a" (optional_with_default "" string) ~doc:"STRING Cluster Authentication"
+  +> flag "-d" (optional_with_default "" string) ~doc:"STRING Executable docker container"
 
 let command =
   Command.basic
     ~summary:"Parliament - A distributed general-purpose cluster-computing framework for OCaml"
     spec
-    (fun hn pt au () ->
+    (fun hn pt au doc () ->
        hostname := hn;
        port := pt;
        auth := au;
+       docker := doc;
     )
 
 let init_master () =
   Command.run ~version:"1.0" ~build_info:"RWO" command;
   try (
-    connect !hostname !port !auth
+    connect !hostname !port !auth !docker
     (* let ic = open_in Sys.argv.(0) in
 
        let len = in_channel_length ic in 
        let bytes = Bytes.create len in 
        really_input ic bytes 0 len;
 
-       let single_request = Executable_request(Parli_core_proto.Create_connection_types.({
+       let single_request = Executable_request(Parliament_proto.Create_connection_types.({
         user_id = !ctx.user_id;
         executable = bytes;
        })
@@ -73,17 +76,18 @@ let init_worker () =
       bytes 
     in
     let file_out = getenv "PARLIAMENT_OUTPUT" in
-    let worker_input = Parli_core_proto.Worker_pb.decode_worker_input(Pbrt.Decoder.of_bytes bytes_in) in
+    let worker_input = Parliament_proto.Worker_pb.decode_worker_input(Pbrt.Decoder.of_bytes bytes_in) in
     let datapack_in : datapack = create_direct worker_input.datapack in
+    Util.info_print ("No of inputs: " ^ (string_of_int (Array.length datapack_in.data)) ); 
     let job_func : (datapack -> datapack) = Marshal.from_bytes worker_input.function_closure 0 in
     let datapack_out = job_func datapack_in in
     validate_output worker_input.map_type datapack_out;
     Util.info_print ("No of outputs: " ^ (string_of_int (Array.length datapack_out.data)) ); 
-    let worker_output = Parli_core_proto.Worker_types.({
+    let worker_output = Parliament_proto.Worker_types.({
         datapacks = Array.to_list datapack_out.data
       }) in
     let encoder = Pbrt.Encoder.create () in
-    Parli_core_proto.Worker_pb.encode_worker_output worker_output encoder;
+    Parliament_proto.Worker_pb.encode_worker_output worker_output encoder;
     let oc = open_out file_out in
     output_bytes oc (Pbrt.Encoder.to_bytes encoder);
     flush oc;

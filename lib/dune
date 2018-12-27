@@ -1,9 +1,4 @@
-(rule
- (targets connection_pb.ml connection_types.ml create_connection_pb.ml data_pb.ml data_types.ml job_pb.ml job_types.ml status_pb.ml status_types.ml )
- (action  (run %{gen} -o %{targets})))
-
 (library
  (name        parliament)
   (public_name parliament)
-  (modules util connection workload context door house datapack)
-  (libraries core parli_core parli_core_proto))
+  (libraries core str parliament_proto))

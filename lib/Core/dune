@@ -1,4 +1,0 @@
-(library
- (name        parli_core)
-  (public_name parliament.core)
-  (libraries ))

@@ -3,6 +3,7 @@
 
 type create_connection_request = {
   authentication : string;
+  docker_name : string;
 }
 
 type create_connection_response = {
@@ -17,8 +18,10 @@ type executable_request = {
 
 let rec default_create_connection_request 
   ?authentication:((authentication:string) = "")
+  ?docker_name:((docker_name:string) = "")
   () : create_connection_request  = {
   authentication;
+  docker_name;
 }
 
 let rec default_create_connection_response 

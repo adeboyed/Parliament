@@ -5,7 +5,7 @@
 
 open Marshal
 open Datapack
-open Parli_core_proto.Job_types
+open Parliament_proto.Job_types
 
 (* TYPES *)
 exception LastJobMustBeSingleOutput
@@ -72,9 +72,9 @@ let validate wl =
 let build wl starting_id =
   validate wl;
   let input_bytes = wl.input.data.(0) in
-  let input_job = Parli_core_proto.Job_types.({
+  let input_job = Parliament_proto.Job_types.({
       job_id = starting_id;
-      action = Input(Parli_core_proto.Job_types.({
+      action = Input(Parliament_proto.Job_types.({
           data_loc_in = input_bytes
         })
         )
@@ -86,9 +86,9 @@ let build wl starting_id =
         | SingleInVariableOut(closure) -> Single_in_variable_out, closure)
     in
     let closure = Marshal.to_bytes function_closure [Compat_32; Closures] in
-    Parli_core_proto.Job_types.({
+    Parliament_proto.Job_types.({
         job_id = (Int32.succ prev_id);
-        action = Map(Parli_core_proto.Job_types.({
+        action = Map(Parliament_proto.Job_types.({
             map_type = map_type_val;
             job_id_in = prev_id;
             function_closure = closure;
@@ -102,6 +102,4 @@ let build wl starting_id =
   in
 
   input_job::(build_jobs ([]) (ending_id) (wl.job_list))
-
-(* TESTS *)
 

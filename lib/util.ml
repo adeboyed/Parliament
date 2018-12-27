@@ -8,7 +8,7 @@ let debug = true
 (* RANDOM FUNCTIONS *)
 
 (* let rec range i j = if i > j then [] else i :: (range (i+1) j) *)
-let rec range i j = if (Int32.compare i j) > 0 then [] else i :: (range (Int32.succ i) j)
+let rec range i j = if (Int32.compare i j) > 0 then [] else i :: (range (Int32.succ i) j);;
 
 (* PRINTING *)
 

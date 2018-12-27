@@ -4,9 +4,9 @@
  *)
 
 open Workload
-open Parli_core_proto.Job_types
-open Parli_core_proto.Status_types
-open Parli_core_proto.Connection_types
+open Parliament_proto.Job_types
+open Parliament_proto.Status_types
+open Parliament_proto.Connection_types
 
 (* TYPES *)
 exception NotConnnectedException
@@ -41,9 +41,17 @@ type running_job = {
 
 (* FUNCTIONS *)
 
-let connect hn pt auth =
-  let single_request = Create_connection_request(Parli_core_proto.Create_connection_types.({ 
-      authentication = auth
+let validate_docker_name docker =
+  let r = Str.regexp "[a-zA-Z0-9]*\\/[a-zA-Z0-9]*:(latest|[0-9.]+)" in
+  if (String.length docker > 0) && (Str.string_match r docker 0) then
+    docker
+  else
+    ""
+
+let connect hn pt auth docker =
+  let single_request = Create_connection_request(Parliament_proto.Create_connection_types.({ 
+      authentication = auth;
+      docker_name = validate_docker_name docker;
     })) in
   let single_response = Connection.send_single_request hn pt single_request in
   match single_response with
@@ -85,7 +93,7 @@ let validate ctx =
 
 let heartbeat ctx =
   validate ctx;
-  let single_request = Connection_request(Parli_core_proto.Connection_types.({
+  let single_request = Connection_request(Parliament_proto.Connection_types.({
       user_id = !ctx.user_id ;
       action = Heartbeat ;
     })
@@ -116,7 +124,7 @@ let submit ctx workload =
   Util.info_print("Submitting " ^ (string_of_int (Int32.to_int job_count)) ^ " jobs to the cluster");
 
   let jobs = Workload.build workload !ctx.next_job in
-  let single_request = Job_submission(Parli_core_proto.Job_types.({
+  let single_request = Job_submission(Parliament_proto.Job_types.({
       user_id = !ctx.user_id;
       jobs = jobs;
     })
@@ -199,7 +207,7 @@ let rec wait_until_output ctx (jobs:running_job list) =
 
 let output ctx job_id = 
   validate ctx;
-  let single_request = Data_retrieval_request(Parli_core_proto.Data_types.({
+  let single_request = Data_retrieval_request(Parliament_proto.Data_types.({
       user_id = !ctx.user_id;
       job_id = job_id;
     })

@@ -2,10 +2,12 @@
 
 type create_connection_request_mutable = {
   mutable authentication : string;
+  mutable docker_name : string;
 }
 
 let default_create_connection_request_mutable () : create_connection_request_mutable = {
   authentication = "";
+  docker_name = "";
 }
 
 type create_connection_response_mutable = {
@@ -36,8 +38,13 @@ let rec decode_create_connection_request d =
     match Pbrt.Decoder.key d with
     | None -> (
     ); continue__ := false
-    | Some (2, Pbrt.Bytes) -> begin
+    | Some (1, Pbrt.Bytes) -> begin
       v.authentication <- Pbrt.Decoder.string d;
+    end
+    | Some (1, pk) -> 
+      Pbrt.Decoder.unexpected_payload "Message(create_connection_request), field(1)" pk
+    | Some (2, Pbrt.Bytes) -> begin
+      v.docker_name <- Pbrt.Decoder.string d;
     end
     | Some (2, pk) -> 
       Pbrt.Decoder.unexpected_payload "Message(create_connection_request), field(2)" pk
@@ -45,6 +52,7 @@ let rec decode_create_connection_request d =
   done;
   ({
     Create_connection_types.authentication = v.authentication;
+    Create_connection_types.docker_name = v.docker_name;
   } : Create_connection_types.create_connection_request)
 
 let rec decode_create_connection_response d =
@@ -96,8 +104,10 @@ let rec decode_executable_request d =
   } : Create_connection_types.executable_request)
 
 let rec encode_create_connection_request (v:Create_connection_types.create_connection_request) encoder = 
-  Pbrt.Encoder.key (2, Pbrt.Bytes) encoder; 
+  Pbrt.Encoder.key (1, Pbrt.Bytes) encoder; 
   Pbrt.Encoder.string v.Create_connection_types.authentication encoder;
+  Pbrt.Encoder.key (2, Pbrt.Bytes) encoder; 
+  Pbrt.Encoder.string v.Create_connection_types.docker_name encoder;
   ()
 
 let rec encode_create_connection_response (v:Create_connection_types.create_connection_response) encoder = 
