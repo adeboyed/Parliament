@@ -30,11 +30,6 @@ let input x = {
 
 (* FUNCTIONS *)
 
-let stage_validate prev next =
-  match (prev, next) with
-  | (VariableInSingleOut(_), VariableInSingleOut(_)) -> raise OnlySingleInputAtStage
-  | _ -> ()
-
 let add wl job = {
   input = wl.input;
   job_list = job::wl.job_list ;
@@ -56,26 +51,24 @@ let branch_validate wl =
     | 0,SingleInVariableOut(_)::tail -> check (acc+1) tail
     | _,SingleInVariableOut(_)::_ -> raise IncorrectFormulationOfStages
   in
-  check 0 jobs
+  match length wl.input with
+    0 -> check 0 jobs
+  | 1 -> check 0 jobs
+  | _ -> check 1 jobs 
 
 let validate wl =
   branch_validate wl;
   if (List.length wl.job_list = 0) then 
     raise MustHaveAtLeastOneJob
   else
-    match (length wl.input, List.hd (wl.job_list) ) with
-    |  (_, SingleInVariableOut(_)) -> raise LastJobMustBeSingleOutput
-    |  (0, _) -> () (* We allow no input for first job*)
-    |  (1, _) -> () (* ..or one input value *)
-    | _ -> raise MaxOneInputValue
+    ()
 
 let build wl starting_id =
   validate wl;
-  let input_bytes = wl.input.data.(0) in
   let input_job = Parliament_proto.Job_types.({
       job_id = starting_id;
       action = Input(Parliament_proto.Job_types.({
-          data_loc_in = input_bytes
+          data_loc_in = get_direct wl.input
         })
         )
     }) in

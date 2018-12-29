@@ -10,7 +10,7 @@ type data_retrieval_request = {
 }
 
 type data_retrieval_response = {
-  bytes : bytes;
+  bytes : bytes list;
 }
 
 
@@ -24,7 +24,7 @@ val default_data_retrieval_request :
 (** [default_data_retrieval_request ()] is the default value for type [data_retrieval_request] *)
 
 val default_data_retrieval_response : 
-  ?bytes:bytes ->
+  ?bytes:bytes list ->
   unit ->
   data_retrieval_response
 (** [default_data_retrieval_response ()] is the default value for type [data_retrieval_response] *)

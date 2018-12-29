@@ -5,7 +5,7 @@
 (** {2 Types} *)
 
 type input_action = {
-  data_loc_in : bytes;
+  data_loc_in : bytes list;
 }
 
 type map_action_map_type =
@@ -41,7 +41,7 @@ type job_submission_response = {
 (** {2 Default values} *)
 
 val default_input_action : 
-  ?data_loc_in:bytes ->
+  ?data_loc_in:bytes list ->
   unit ->
   input_action
 (** [default_input_action ()] is the default value for type [input_action] *)

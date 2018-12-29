@@ -89,6 +89,7 @@ lib: [
   "_build/install/default/lib/parliament/datapack.mli" {"datapack.mli"}
   "_build/install/default/lib/parliament/door.ml" {"door.ml"}
   "_build/install/default/lib/parliament/house.ml" {"house.ml"}
+  "_build/install/default/lib/parliament/house.mli" {"house.mli"}
   "_build/install/default/lib/parliament/opam" {"opam"}
   "_build/install/default/lib/parliament/parliament.a" {"parliament.a"}
   "_build/install/default/lib/parliament/parliament.cma" {"parliament.cma"}
@@ -116,6 +117,7 @@ lib: [
   "_build/install/default/lib/parliament/parliament__Door.cmx" {"parliament__Door.cmx"}
   "_build/install/default/lib/parliament/parliament__House.cmi" {"parliament__House.cmi"}
   "_build/install/default/lib/parliament/parliament__House.cmt" {"parliament__House.cmt"}
+  "_build/install/default/lib/parliament/parliament__House.cmti" {"parliament__House.cmti"}
   "_build/install/default/lib/parliament/parliament__House.cmx" {"parliament__House.cmx"}
   "_build/install/default/lib/parliament/parliament__Util.cmi" {"parliament__Util.cmi"}
   "_build/install/default/lib/parliament/parliament__Util.cmt" {"parliament__Util.cmt"}

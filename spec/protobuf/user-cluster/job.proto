@@ -10,7 +10,7 @@ syntax = "proto3";
 */
 
 message InputAction {
-    bytes data_loc_in = 1;
+    repeated bytes data_loc_in = 1;
     // This is marshalled data that is going to do passed directly to the user.
 }
 

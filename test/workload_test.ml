@@ -1,7 +1,6 @@
 open Parliament
 open Parliament.Door.Workload
 
-
 open OUnit
 
 let suite =

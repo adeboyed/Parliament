@@ -214,7 +214,7 @@ let output ctx job_id =
     ) in
   let single_response = Connection.send_single_request !ctx.hostname !ctx.port single_request in 
   match single_response with
-    Data_retrieval_response(response) -> Some(Datapack.create_direct [response.bytes])
+    Data_retrieval_response(response) -> Some(Datapack.create_direct response.bytes)
   | Server_message({action = Internal_server_error }) -> (
       Util.error_print("Recieved an internal server error!");
       raise InternalServerError

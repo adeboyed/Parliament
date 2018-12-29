@@ -21,6 +21,9 @@ val create : int -> datapack
 val create_direct : string list -> datapack
 (** [create_direct bytes_list] Create a datapack from [bytes_list] of marshalled data*)
 
+val get_direct : datapack -> string list
+(** [get_direct datapack] *)
+
 val single_item : 'a -> datapack
 (** [single_item element] Create a single item datapack containing [element] *)
 

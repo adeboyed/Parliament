@@ -1,11 +1,11 @@
 [@@@ocaml.warning "-27-30-39"]
 
 type input_action_mutable = {
-  mutable data_loc_in : bytes;
+  mutable data_loc_in : bytes list;
 }
 
 let default_input_action_mutable () : input_action_mutable = {
-  data_loc_in = Bytes.create 0;
+  data_loc_in = [];
 }
 
 type map_action_mutable = {
@@ -55,9 +55,10 @@ let rec decode_input_action d =
   while !continue__ do
     match Pbrt.Decoder.key d with
     | None -> (
+      v.data_loc_in <- List.rev v.data_loc_in;
     ); continue__ := false
     | Some (1, Pbrt.Bytes) -> begin
-      v.data_loc_in <- Pbrt.Decoder.bytes d;
+      v.data_loc_in <- (Pbrt.Decoder.bytes d) :: v.data_loc_in;
     end
     | Some (1, pk) -> 
       Pbrt.Decoder.unexpected_payload "Message(input_action), field(1)" pk
@@ -192,8 +193,10 @@ let rec decode_job_submission_response d =
   } : Job_types.job_submission_response)
 
 let rec encode_input_action (v:Job_types.input_action) encoder = 
-  Pbrt.Encoder.key (1, Pbrt.Bytes) encoder; 
-  Pbrt.Encoder.bytes v.Job_types.data_loc_in encoder;
+  List.iter (fun x -> 
+    Pbrt.Encoder.key (1, Pbrt.Bytes) encoder; 
+    Pbrt.Encoder.bytes x encoder;
+  ) v.Job_types.data_loc_in;
   ()
 
 let rec encode_map_action_map_type (v:Job_types.map_action_map_type) encoder =

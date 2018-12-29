@@ -7,7 +7,7 @@ type data_retrieval_request = {
 }
 
 type data_retrieval_response = {
-  bytes : bytes;
+  bytes : bytes list;
 }
 
 let rec default_data_retrieval_request 
@@ -19,7 +19,7 @@ let rec default_data_retrieval_request
 }
 
 let rec default_data_retrieval_response 
-  ?bytes:((bytes:bytes) = Bytes.create 0)
+  ?bytes:((bytes:bytes list) = [])
   () : data_retrieval_response  = {
   bytes;
 }

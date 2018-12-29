@@ -23,6 +23,8 @@ let create_direct x = {
   data = Array.of_list x
 }
 
+let get_direct datapack = Array.to_list datapack.data
+
 let single_item a = {
   data = Array.make 1 (marshal a)
 }

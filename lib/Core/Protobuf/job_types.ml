@@ -2,7 +2,7 @@
 
 
 type input_action = {
-  data_loc_in : bytes;
+  data_loc_in : bytes list;
 }
 
 type map_action_map_type =
@@ -35,7 +35,7 @@ type job_submission_response = {
 }
 
 let rec default_input_action 
-  ?data_loc_in:((data_loc_in:bytes) = Bytes.create 0)
+  ?data_loc_in:((data_loc_in:bytes list) = [])
   () : input_action  = {
   data_loc_in;
 }

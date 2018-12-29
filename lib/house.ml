@@ -84,7 +84,7 @@ let init_worker () =
     validate_output worker_input.map_type datapack_out;
     Util.info_print ("No of outputs: " ^ (string_of_int (Array.length datapack_out.data)) ); 
     let worker_output = Parliament_proto.Worker_types.({
-        datapacks = Array.to_list datapack_out.data
+        datapacks = get_direct datapack_out
       }) in
     let encoder = Pbrt.Encoder.create () in
     Parliament_proto.Worker_pb.encode_worker_output worker_output encoder;

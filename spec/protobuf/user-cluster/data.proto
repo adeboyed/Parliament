@@ -6,5 +6,5 @@ message DataRetrievalRequest {
 }
 
 message DataRetrievalResponse {
-    bytes bytes = 1;
+    repeated bytes bytes = 1;
 }

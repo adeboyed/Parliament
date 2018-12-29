@@ -11,11 +11,11 @@ let default_data_retrieval_request_mutable () : data_retrieval_request_mutable =
 }
 
 type data_retrieval_response_mutable = {
-  mutable bytes : bytes;
+  mutable bytes : bytes list;
 }
 
 let default_data_retrieval_response_mutable () : data_retrieval_response_mutable = {
-  bytes = Bytes.create 0;
+  bytes = [];
 }
 
 
@@ -49,9 +49,10 @@ let rec decode_data_retrieval_response d =
   while !continue__ do
     match Pbrt.Decoder.key d with
     | None -> (
+      v.bytes <- List.rev v.bytes;
     ); continue__ := false
     | Some (1, Pbrt.Bytes) -> begin
-      v.bytes <- Pbrt.Decoder.bytes d;
+      v.bytes <- (Pbrt.Decoder.bytes d) :: v.bytes;
     end
     | Some (1, pk) -> 
       Pbrt.Decoder.unexpected_payload "Message(data_retrieval_response), field(1)" pk
@@ -69,6 +70,8 @@ let rec encode_data_retrieval_request (v:Data_types.data_retrieval_request) enco
   ()
 
 let rec encode_data_retrieval_response (v:Data_types.data_retrieval_response) encoder = 
-  Pbrt.Encoder.key (1, Pbrt.Bytes) encoder; 
-  Pbrt.Encoder.bytes v.Data_types.bytes encoder;
+  List.iter (fun x -> 
+    Pbrt.Encoder.key (1, Pbrt.Bytes) encoder; 
+    Pbrt.Encoder.bytes x encoder;
+  ) v.Data_types.bytes;
   ()
