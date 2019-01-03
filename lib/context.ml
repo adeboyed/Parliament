@@ -42,7 +42,7 @@ type running_job = {
 (* FUNCTIONS *)
 
 let validate_docker_name docker =
-  let r = Str.regexp "[a-zA-Z0-9]*\\/[a-zA-Z0-9]*:(latest|[0-9.]+)" in
+  let r = Str.regexp {|[a-zA-Z0-9]*\/[a-zA-Z0-9]*:\(latest\|[0-9.]+\)|} in
   if (String.length docker > 0) && (Str.string_match r docker 0) then
     docker
   else

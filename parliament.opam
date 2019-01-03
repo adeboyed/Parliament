@@ -6,6 +6,11 @@ homepage: "https://github.com/adeboyed/Parliament"
 bug-reports: "https://github.com/adeboyed/Parliament/issues"
 dev-repo: "https://github.com/adeboyed/Parliament.git"
 license: "Apache-2.0"
+depends: [
+  "jbuilder" {build}
+  "core"
+  "ocaml-protoc"
+]
 build: [
   ["jbuilder" "build" "--only" "parliament" "--root" "." "-j" jobs "@install"]
 ]

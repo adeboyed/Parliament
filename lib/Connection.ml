@@ -20,7 +20,7 @@ let _shutdown_connection (ic:in_channel) =
 let _send_to_master client_fun (server: string) (port:int) =
   let server_addr =
     try  Unix.inet_addr_of_string server 
-    with Failure("inet_addr_of_string") -> 
+    with Failure(_) -> 
     try  (Unix.gethostbyname server).Unix.h_addr_list.(0) 
     with Not_found -> (raise (ConnectionError "Could not find server from hostname"))
   in try
@@ -30,7 +30,7 @@ let _send_to_master client_fun (server: string) (port:int) =
 
     _shutdown_connection ic;
     result
-  with Failure("int_of_string") -> raise (ConnectionError "Bad port number")
+  with Failure(_) -> raise (ConnectionError "Bad port number")
      | Unix_error(e, _, _) -> raise (ConnectionError ("Could not connect to cluster! " ^ (error_message e) ^ "\nPlease check hostname and port again!" ))
 
 let _request_response request response ic oc  =

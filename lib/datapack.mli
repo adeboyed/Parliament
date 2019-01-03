@@ -6,10 +6,10 @@ type datapack = {
 }
 (**/**)
 
-val marshal : 'a -> string
+val marshal : 'a -> bytes
 (** [marshal item], wrapper around the OCaml marshal function which ensures [item] is marshalled the same way *)
 
-val unmarshal : string -> 'a
+val unmarshal : bytes -> 'a
 (** [unmarshal bytes], wrapper around OCaml unmarshal function *)
 
 val length : datapack -> int
@@ -18,10 +18,10 @@ val length : datapack -> int
 val create : int -> datapack
 (** [create length] a datapack with size [length] *)
 
-val create_direct : string list -> datapack
+val create_direct : bytes list -> datapack
 (** [create_direct bytes_list] Create a datapack from [bytes_list] of marshalled data*)
 
-val get_direct : datapack -> string list
+val get_direct : datapack -> bytes list
 (** [get_direct datapack] *)
 
 val single_item : 'a -> datapack
