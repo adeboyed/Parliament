@@ -12,13 +12,13 @@ let rec range i j = if (Int32.compare i j) > 0 then [] else i :: (range (Int32.s
 
 (* PRINTING *)
 
-let info_print (str:string) = Printf.printf "[PARLIAMENT] %s \n" str
+let info_print (str:string) = Printf.printf "[PARLIAMENT] %s \n%!" str
 
-let error_print (str:string) = Printf.printf "[PARLIAMENT error] %s \n" str
+let error_print (str:string) = Printf.printf "[PARLIAMENT error] %s \n%!" str
 
 let debug_print (str:string) =
   match debug with
-  | true -> Printf.printf "[PARLIAMENT debug] %s \n" str
+  | true -> Printf.printf "[PARLIAMENT debug] %s \n%!" str
   | false -> ()
 
 let minisleep (sec: float) =

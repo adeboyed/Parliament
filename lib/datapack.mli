@@ -24,6 +24,9 @@ val create_direct : bytes list -> datapack
 val get_direct : datapack -> bytes list
 (** [get_direct datapack] *)
 
+val from_list : 'a list -> datapack
+(** [get_direct datapack] *)
+
 val single_item : 'a -> datapack
 (** [single_item element] Create a single item datapack containing [element] *)
 

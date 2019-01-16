@@ -66,5 +66,10 @@ let send_single_request hostname port request_obj =
   let request = Parliament_proto.Connection_pb.encode_single_user_request request_obj in 
   let response = Parliament_proto.Connection_pb.decode_single_user_response in
   _send_to_master (_request_response request response) (hostname) (port)
+
+let send_worker_request hostname port request_obj = 
+  let request = Parliament_proto.Worker_pb.encode_single_worker_request request_obj in 
+  let response = Parliament_proto.Worker_pb.decode_single_worker_response in
+  _send_to_master (_request_response request response) (hostname) (port)
 (* retry_handler func 5 *)
 

@@ -41,17 +41,17 @@ type running_job = {
 
 (* FUNCTIONS *)
 
-let validate_docker_name docker =
+(* let validate_docker_name docker =
   let r = Str.regexp {|[a-zA-Z0-9]*\/[a-zA-Z0-9]*:\(latest\|[0-9.]+\)|} in
   if (String.length docker > 0) && (Str.string_match r docker 0) then
     docker
   else
-    ""
+    "" *)
 
-let connect hn pt auth docker =
+let connect hn pt docker =
   let single_request = Create_connection_request(Parliament_proto.Create_connection_types.({ 
-      authentication = auth;
-      docker_name = validate_docker_name docker;
+      authentication = "";
+      docker_name = docker;
     })) in
   let single_response = Connection.send_single_request hn pt single_request in
   match single_response with
@@ -120,8 +120,8 @@ let heartbeat ctx =
 
 let submit ctx workload = 
   validate ctx;
-  let job_count = Int32.of_int (List.length workload.job_list) in
-  Util.info_print("Submitting " ^ (string_of_int (Int32.to_int job_count)) ^ " jobs to the cluster");
+  let job_count = Int32.of_int (List.length workload.job_list)in
+  Util.info_print("Submitting " ^ (Int32.to_string job_count) ^ " jobs to the cluster");
 
   let jobs = Workload.build workload !ctx.next_job in
   let single_request = Job_submission(Parliament_proto.Job_types.({
@@ -134,12 +134,12 @@ let submit ctx workload =
   match single_response with
     Job_submission_response(response) -> (
       if response.job_accepted then (
-        ctx:= {
+        ctx := {
           hostname = !ctx.hostname ;
           port = !ctx.port;
           connection_status = Connected ;
           user_id = !ctx.user_id ;
-          next_job = Int32.add job_count !ctx.next_job ;
+          next_job = Int32.succ (Int32.add job_count !ctx.next_job) ;
         }; Some(running_jobs_list))
       else None
     )

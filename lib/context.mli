@@ -41,7 +41,7 @@ type running_job = {
 }
 (** A tuple for holding the ID of a job and the current status of a job*)
 
-val connect : string -> int -> string -> string -> context Pervasives.ref
+val connect : string -> int -> string -> context Pervasives.ref
 (** [connect hostname port authentication_token docker_name] initialises a connection to a Parliament cluster and then returns a reference to a context cluster. Can return an unconnected context *)
 
 val heartbeat : context Pervasives.ref -> bool

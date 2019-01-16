@@ -3,7 +3,7 @@
 exception IncorrectNumberOfOutputs
 (** exception only thrown in worker mode. Parliament will check that the output of the function contains the correct number of outputs *)
 
-val init : unit -> Door.Context.context Pervasives.ref
+val init : unit -> Door.Context.context Pervasives.ref * string
 (** [init] must be called at the beginning of the application, which creates and returns the connection to the cluster.
     [init] adds a command line interface for passing in the command line cluster options 
     {b Example interface:}

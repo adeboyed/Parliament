@@ -6,17 +6,15 @@
 open Sys
 open Door.Context
 open Datapack
-open Core.In_channel
 
 open Parliament_proto.Worker_types
 
 let hostname = ref ""
 let port = ref 0
-let auth = ref ""
 let docker = ref ""
+let args = ref ""
 
 exception IncorrectNumberOfOutputs
-exception IOError of string
 
 (* Command line spec *)
 let spec =
@@ -24,7 +22,7 @@ let spec =
   empty
   +> flag "-h" (required string) ~doc:"STRING Cluster Hostname"
   +> flag "-p" (required int) ~doc:"INTEGER Cluster Port"
-  +> flag "-a" (optional_with_default "" string) ~doc:"STRING Cluster Authentication"
+  +> flag "-a" (optional_with_default "" string) ~doc:"STRING Program arguments"
   +> flag "-d" (optional_with_default "" string) ~doc:"STRING Executable docker container"
 
 let command =
@@ -34,14 +32,14 @@ let command =
     (fun hn pt au doc () ->
        hostname := hn;
        port := pt;
-       auth := au;
+       args := au;
        docker := doc;
     )
 
 let init_master () =
   Core.Command.run ~version:"1.0" ~build_info:"RWO" command;
   try (
-    connect !hostname !port !auth !docker
+    ((connect !hostname !port !docker), !args)
   )
   with Connection.ConnectionError(e) -> (Util.error_print(e); exit 2)
 
@@ -53,40 +51,29 @@ let validate_output map_type datapack =
   | (Single_in_variable_out, _) -> ()
   | _ -> raise IncorrectNumberOfOutputs
 
-let load_bytes () =
-  match input_binary_int stdin with
-        Some(len) -> (
-            let bytes = Bytes.create len in 
-            match really_input stdin ~buf:bytes ~pos:0 ~len:len with
-              Some(_) -> bytes
-              | None -> raise (IOError "Couldn't read bytes")
-          )
-        | None -> raise (IOError "Couldn't read length")
-
 let init_worker () = 
   try (
-    let bytes_in = load_bytes() in
-    let file_out = getenv "PARLIAMENT_OUTPUT" in
-    let worker_input = Parliament_proto.Worker_pb.decode_worker_input(Pbrt.Decoder.of_bytes bytes_in) in
-    let datapack_in : datapack = create_direct worker_input.datapacks in
-    Util.info_print ("No of inputs: " ^ (string_of_int (Array.length datapack_in.data)) ); 
-    let job_func : (datapack -> datapack) = Marshal.from_bytes worker_input.function_closure 0 in
-    let datapack_out = job_func datapack_in in
-    validate_output worker_input.map_type datapack_out;
-    Util.info_print ("No of outputs: " ^ (string_of_int (Array.length datapack_out.data)) ); 
-    let worker_output = Parliament_proto.Worker_types.({
-        datapacks = get_direct datapack_out
-      }) in
-    let encoder = Pbrt.Encoder.create () in
-    Parliament_proto.Worker_pb.encode_worker_output worker_output encoder;
-    let oc = open_out file_out in
-    output_bytes oc (Pbrt.Encoder.to_bytes encoder);
-    flush oc;
-    close_out oc;
-    exit 0
+    let worker_hostname = getenv "PARLIAMENT_HOST" in
+    let worker_port = int_of_string (getenv "PARLIAMENT_PORT") in
+    Util.info_print ("Attempting to connect to worker @ " ^ worker_hostname ^ ":" ^ (string_of_int worker_port) );
+    let worker_input = (Connection.send_worker_request worker_hostname worker_port Input_request) in
+    match worker_input with
+      Input_response(input_data) -> (
+        let datapack_in : datapack = create_direct input_data.datapacks in
+        Util.info_print ("No of inputs: " ^ (string_of_int (Array.length datapack_in.data)) ); 
+        let job_func : (datapack -> datapack) = Marshal.from_bytes input_data.function_closure 0 in
+        let datapack_out = job_func datapack_in in
+        validate_output input_data.map_type datapack_out;
+        Util.info_print ("No of outputs: " ^ (string_of_int (Array.length datapack_out.data)) ); 
+        let worker_output = Parliament_proto.Worker_types.({
+            datapacks = get_direct datapack_out
+          }) in
+        ignore(Connection.send_worker_request worker_hostname worker_port (Output_request(worker_output)));
+        exit 0 
+      )
+    | _ -> Util.error_print "Recieved an incorrect response from server!"; exit 201
   )
-  with IOError(e) -> (Util.error_print ("Recieved IO Error: " ^ e) ; exit 202)
-  | Not_found -> (Util.error_print "Please check you have initialised the correct ENV variables"; exit 201)
+  with Not_found -> (Util.error_print "Please check you have initialised the correct ENV variables"; exit 201)
 
 let init () =
   let internal_init () =
