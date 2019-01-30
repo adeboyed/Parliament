@@ -8,16 +8,16 @@ open Unix
 exception ConnectionError of string
 
 (* Helper functions *)
-let _open_connection (sockaddr:sockaddr) =
+let open_connection (sockaddr:sockaddr) =
   let sock = Unix.socket Unix.PF_INET Unix.SOCK_STREAM 0 
   in try Unix.connect sock sockaddr ;
     (Unix.in_channel_of_descr sock , Unix.out_channel_of_descr sock)
   with exn -> Unix.close sock ; raise exn
 
-let _shutdown_connection (ic:in_channel) =
+let shutdown_connection (ic:in_channel) =
   Unix.shutdown (Unix.descr_of_in_channel ic) Unix.SHUTDOWN_SEND
 
-let _send_to_master client_fun (server: string) (port:int) =
+let send_to_master client_fun (server: string) (port:int) =
   let server_addr =
     try  Unix.inet_addr_of_string server 
     with Failure(_) -> 
@@ -25,15 +25,14 @@ let _send_to_master client_fun (server: string) (port:int) =
     with Not_found -> (raise (ConnectionError "Could not find server from hostname"))
   in try
     let sockaddr = Unix.ADDR_INET(server_addr, port) in 
-    let ic,oc = _open_connection sockaddr in
+    let ic,oc = open_connection sockaddr in
     let result = client_fun ic oc in
-
-    _shutdown_connection ic;
+    shutdown_connection ic;
     result
   with Failure(_) -> raise (ConnectionError "Bad port number")
      | Unix_error(e, _, _) -> raise (ConnectionError ("Could not connect to cluster! " ^ (error_message e) ^ "\nPlease check hostname and port again!" ))
 
-let _request_response request response ic oc  =
+let request_response request response ic oc  =
   let encoder = Pbrt.Encoder.create () in
   request encoder;
   let bytes_out = Pbrt.Encoder.to_bytes encoder in
@@ -48,28 +47,21 @@ let _request_response request response ic oc  =
     bytes 
   in
   response (Pbrt.Decoder.of_bytes bytes)
-(* 
-let retry_handler func:(unit -> 'a) (retry_count) = 
-  let rec retry current_count = 
-    try (func())
-    with ConnectionError(e) -> (
-        Util.error_print("Recieved error, retrying..." ^ e);
-        if (current_count > retry_count) then
-          raise (ConnectionError e)
-        else 
-          retry current_count+1
-      ) in
-  retry 0 *)
+
+(* let rec retry_handler (func: unit -> 'a) : 'a = function
+    0 -> raise (ConnectionError "Run out of retries")
+    | count -> 
+      try func()
+      with ConnectionError(_) -> retry_handler func count-1 *)
 
 (* Actual useful functions *)
 let send_single_request hostname port request_obj = 
   let request = Parliament_proto.Connection_pb.encode_single_user_request request_obj in 
   let response = Parliament_proto.Connection_pb.decode_single_user_response in
-  _send_to_master (_request_response request response) (hostname) (port)
+  send_to_master (request_response request response) (hostname) (port)
 
 let send_worker_request hostname port request_obj = 
   let request = Parliament_proto.Worker_pb.encode_single_worker_request request_obj in 
   let response = Parliament_proto.Worker_pb.decode_single_worker_response in
-  _send_to_master (_request_response request response) (hostname) (port)
-(* retry_handler func 5 *)
+  send_to_master (request_response request response) (hostname) (port)
 

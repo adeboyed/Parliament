@@ -55,7 +55,7 @@ let init_worker () =
   try (
     let worker_hostname = getenv "PARLIAMENT_HOST" in
     let worker_port = int_of_string (getenv "PARLIAMENT_PORT") in
-    Util.info_print ("Attempting to connect to worker @ " ^ worker_hostname ^ ":" ^ (string_of_int worker_port) );
+    Util.info_print ("Attempting to connect to worker @ " ^ worker_hostname ^ ":" ^ (string_of_int worker_port)) ;
     let worker_input = (Connection.send_worker_request worker_hostname worker_port Input_request) in
     match worker_input with
       Input_response(input_data) -> (
