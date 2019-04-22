@@ -9,9 +9,9 @@ type input_action = {
 }
 
 type map_action_map_type =
-  | Single_in_variable_out 
+  | Single_in_multi_out 
   | Single_in_single_out 
-  | Variable_in_single_out 
+  | Multi_in_single_out 
 
 type map_action = {
   map_type : map_action_map_type;

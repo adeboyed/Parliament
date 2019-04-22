@@ -1,4 +1,4 @@
-(** Function that handles sending a Protobuf single request to a given hostname and port and returning a response *)
+(** Module that handles sending a Protobuf single request to a given hostname and port and returning a response *)
 
 exception ConnectionError of string
 (** An exception thrown if an error is encountered at any part of the request/response decoding/encoding + transmissions *)

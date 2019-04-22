@@ -47,8 +47,8 @@ let init_master () =
 let validate_output map_type datapack = 
   match (map_type, (Datapack.length datapack)) with
   | (Single_in_single_out,1) -> ()
-  | (Variable_in_single_out, 1) -> ()
-  | (Single_in_variable_out, _) -> ()
+  | (Multi_in_single_out, 1) -> ()
+  | (Single_in_multi_out, _) -> ()
   | _ -> raise IncorrectNumberOfOutputs
 
 let init_worker () = 

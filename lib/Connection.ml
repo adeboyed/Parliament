@@ -25,7 +25,7 @@ let send_to_master client_fun (server: string) (port:int) =
     with Not_found -> (raise (ConnectionError "Could not find server from hostname"))
   in try
     let sockaddr = Unix.ADDR_INET(server_addr, port) in 
-    let ic,oc = open_connection sockaddr in
+    let ic, oc = open_connection sockaddr in
     let result = client_fun ic oc in
     shutdown_connection ic;
     result
@@ -35,33 +35,42 @@ let send_to_master client_fun (server: string) (port:int) =
 let request_response request response ic oc  =
   let encoder = Pbrt.Encoder.create () in
   request encoder;
+  (* Util.info_print "Request encoder"; *)
   let bytes_out = Pbrt.Encoder.to_bytes encoder in
   let bytes_len = (Bytes.length bytes_out) in 
   output_binary_int oc bytes_len;
   output_bytes oc bytes_out;
   flush oc;
-  let bytes = 
+  Util.debug_print "Flushed output_channel" ;
+  let len, bytes = 
     let len = input_binary_int ic in 
+    Util.debug_print ("Recieved length of " ^ (string_of_int len) ^ " from socket" );
     let bytes = Bytes.create len in 
     really_input ic bytes 0 len; 
-    bytes 
+    len, bytes 
   in
-  response (Pbrt.Decoder.of_bytes bytes)
+  if len > 0 then 
+    response (Pbrt.Decoder.of_bytes bytes)
+  else 
+    raise (ConnectionError "Did not recieve anything back from the server!")
 
-(* let rec retry_handler (func: unit -> 'a) : 'a = function
-    0 -> raise (ConnectionError "Run out of retries")
-    | count -> 
-      try func()
-      with ConnectionError(_) -> retry_handler func count-1 *)
+let rec retry_handler (func: unit -> 'a) (count:int) = 
+  match count with
+  0 -> raise (ConnectionError "Run out of retries")
+  | count -> 
+    try func ()
+    with ConnectionError(_) -> (retry_handler func (count-1))
 
 (* Actual useful functions *)
 let send_single_request hostname port request_obj = 
   let request = Parliament_proto.Connection_pb.encode_single_user_request request_obj in 
   let response = Parliament_proto.Connection_pb.decode_single_user_response in
-  send_to_master (request_response request response) (hostname) (port)
+  let func() = send_to_master (request_response request response) (hostname) (port) in
+  retry_handler func 3
 
 let send_worker_request hostname port request_obj = 
   let request = Parliament_proto.Worker_pb.encode_single_worker_request request_obj in 
   let response = Parliament_proto.Worker_pb.decode_single_worker_response in
-  send_to_master (request_response request response) (hostname) (port)
+  let func () = send_to_master (request_response request response) (hostname) (port) in 
+  retry_handler func 3
 

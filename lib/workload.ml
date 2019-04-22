@@ -15,9 +15,9 @@ exception MustHaveAtLeastOneJob
 
 exception OnlySingleInputAtStage
 
-type job = SingleInVariableOut of (datapack -> datapack) 
+type job = SingleInMultiOut of (datapack -> datapack) 
          | SingleInSingleOut of (datapack -> datapack) 
-         | VariableInSingleOut of (datapack -> datapack) 
+         | MultiInSingleOut of (datapack -> datapack) 
 
 type workload = {
   input: datapack ;
@@ -46,10 +46,10 @@ let branch_validate wl =
     match (acc, jobs) with
       _, [] -> ()
     | _,SingleInSingleOut(_)::tail -> check acc tail
-    | 1,VariableInSingleOut(_)::tail -> check (acc-1) (tail)
-    | _,VariableInSingleOut(_)::_ -> raise IncorrectFormulationOfStages
-    | 0,SingleInVariableOut(_)::tail -> check (acc+1) tail
-    | _,SingleInVariableOut(_)::_ -> raise IncorrectFormulationOfStages
+    | 1,MultiInSingleOut(_)::tail -> check (acc-1) (tail)
+    | _,MultiInSingleOut(_)::_ -> raise IncorrectFormulationOfStages
+    | 0,SingleInMultiOut(_)::tail -> check (acc+1) tail
+    | _,SingleInMultiOut(_)::_ -> raise IncorrectFormulationOfStages
   in
   match length wl.input with
     0 -> check 0 jobs
@@ -75,8 +75,8 @@ let build wl starting_id =
   let build_job job prev_id = 
     let map_type_val, function_closure = (match job with
           SingleInSingleOut(closure) -> Single_in_single_out, closure
-        | VariableInSingleOut(closure) -> Variable_in_single_out, closure
-        | SingleInVariableOut(closure) -> Single_in_variable_out, closure)
+        | MultiInSingleOut(closure) -> Multi_in_single_out, closure
+        | SingleInMultiOut(closure) -> Single_in_multi_out, closure)
     in
     let closure = Marshal.to_bytes function_closure [Compat_32; Closures] in
     Parliament_proto.Job_types.({

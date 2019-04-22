@@ -1,4 +1,4 @@
-(** Module that contains the abstract of a connection to a Paliament cluster: ParliamentContext *)
+(** Module that contains the abstract of a connection to a Parliament cluster: ParliamentContext *)
 
 exception NotConnnectedException
 (** exception thrown when attempting to perform a operation on a disconnected context *)
@@ -33,7 +33,7 @@ type status =
   | Halted
   | Cancelled
 
-(** A type for modelling all of the different statuses of a job *)
+(** A type for modeling all of the different statuses of a job *)
 
 type running_job = {
   job_id : int32;

@@ -6,9 +6,9 @@ type input_action = {
 }
 
 type map_action_map_type =
-  | Single_in_variable_out 
+  | Single_in_multi_out 
   | Single_in_single_out 
-  | Variable_in_single_out 
+  | Multi_in_single_out 
 
 type map_action = {
   map_type : map_action_map_type;
@@ -40,7 +40,7 @@ let rec default_input_action
   data_loc_in;
 }
 
-let rec default_map_action_map_type () = (Single_in_variable_out:map_action_map_type)
+let rec default_map_action_map_type () = (Single_in_multi_out:map_action_map_type)
 
 let rec default_map_action 
   ?map_type:((map_type:map_action_map_type) = default_map_action_map_type ())
