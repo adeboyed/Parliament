@@ -33,7 +33,7 @@ message SingleUserRequest {
         ConnectionRequest connection_request = 2;
         JobSubmission job_submission = 3;
         DataRetrievalRequest data_retrieval_request = 4;
-        UserJobStatusRequest job_status_request = 5;
+        JobStatusRequest job_status_request = 5;
         ExecutableRequest executable_request = 6;
     }
 }
@@ -43,7 +43,7 @@ message SingleUserResponse {
         CreateConnectionResponse create_connection_response = 1;
         JobSubmissionResponse job_submission_response = 2;
         DataRetrievalResponse data_retrieval_response = 3;
-        UserJobStatusResponse job_status_response = 4;
+        JobStatusResponse job_status_response = 4;
         ConnectionResponse connection_response = 5;
         ServerMessage server_message = 6;
     }

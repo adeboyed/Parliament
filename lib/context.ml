@@ -156,7 +156,7 @@ let job_status ctx (jobs:running_job list) =
       job_ids = List.map (fun (x:running_job) -> x.job_id) jobs
     })
   in
-  let convert_status_from_proto (status:user_job_status_status) : status =
+  let convert_status_from_proto (status:job_status_status) : status =
     match status with
       Blocked -> Blocked
     | Queued  -> Queued
@@ -165,7 +165,7 @@ let job_status ctx (jobs:running_job list) =
     | Halted -> Halted
     | Cancelled -> Cancelled
   in
-  let proto_to_running_job (proto: user_job_status) =
+  let proto_to_running_job (proto: job_status) =
     {
       job_id = proto.job_id ;
       status = convert_status_from_proto proto.status ;

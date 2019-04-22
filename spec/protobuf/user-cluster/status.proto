@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-message UserJobStatusRequest {
+message JobStatusRequest {
     string user_id = 1;
     repeated int32 job_ids = 2;
 }
 
-message UserJobStatus {
+message JobStatus {
     int32 job_id = 2;
     enum Status {
         BLOCKED = 0;
@@ -18,6 +18,6 @@ message UserJobStatus {
     Status status = 3;
 }
 
-message UserJobStatusResponse {
-    repeated UserJobStatus job_statuses = 1;
+message JobStatusResponse {
+    repeated JobStatus job_statuses = 1;
 }
