@@ -56,10 +56,12 @@ let request_response request response ic oc  =
 
 let rec retry_handler (func: unit -> 'a) (count:int) = 
   match count with
-  0 -> raise (ConnectionError "Run out of retries")
+  0 -> raise (ConnectionError "Run out of retries.")
   | count -> 
     try func ()
-    with ConnectionError(_) -> (retry_handler func (count-1))
+    with ConnectionError(e) -> (
+      Util.error_print("Recieved error " ^ e ^ ". Retries left: " ^ (string_of_int (count-1)));
+      retry_handler func (count-1))
 
 (* Actual useful functions *)
 let send_single_request hostname port request_obj = 
