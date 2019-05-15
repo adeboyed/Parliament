@@ -1,11 +1,11 @@
 opam-version: "2"
 version: "1.0"
-maintainer: "david.adeboye@outlook.com"
-authors: ["David Adeboye"]
-homepage: "https://github.com/adeboyed/Parliament"
-bug-reports: "https://github.com/adeboyed/Parliament/issues"
-dev-repo: "https://github.com/adeboyed/Parliament.git"
-license: "Apache-2.0"
+maintainer: "[REACTED]"
+authors: ["[REACTED]"]
+homepage: "https://github.com/[REACTED]/Parliament"
+bug-reports: "https://github.com/[REACTED]/Parliament/issues"
+dev-repo: "https://github.com/[REACTED]/Parliament.git"
+license: "MIT"
 depends: [
   "jbuilder" {build}
   "core"

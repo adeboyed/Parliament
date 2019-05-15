@@ -1,3 +1,8 @@
+(*
+ * Parliament - A distributed general-purpose cluster-computing framework for OCaml
+ * Copyright (c) 2018-2019 [Name REDACTED] [Email REDACTED]
+ *)
+
 (** Module that handles sending a Protobuf single request to a given hostname and port and returning a response *)
 
 exception ConnectionError of string

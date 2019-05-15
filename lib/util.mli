@@ -1,3 +1,8 @@
+(*
+ * Parliament - A distributed general-purpose cluster-computing framework for OCaml
+ * Copyright (c) 2018-2019 [Name REDACTED] [Email REDACTED]
+ *)
+
 (** Module useful functions used throughout Parliament *)
 
 val debug : bool

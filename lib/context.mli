@@ -1,3 +1,8 @@
+(*
+ * Parliament - A distributed general-purpose cluster-computing framework for OCaml
+ * Copyright (c) 2018-2019 [Name REDACTED] [Email REDACTED]
+ *)
+
 (** Module that contains the abstract of a connection to a Parliament cluster: ParliamentContext *)
 
 exception NotConnnectedException

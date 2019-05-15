@@ -1,3 +1,8 @@
+(*
+ * Parliament - A distributed general-purpose cluster-computing framework for OCaml
+ * Copyright (c) 2018-2019 [Name REDACTED] [Email REDACTED]
+ *)
+
 (** Entry point for applications using the Parliament library with a Parliament Cluster *)
 
 exception IncorrectNumberOfOutputs
