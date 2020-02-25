@@ -4,7 +4,7 @@ A Cambridge Computer Science Part II dissertation building a general-purpose clu
 
 Parliament is a data-parallel distributed library, where the architecture encourages developers to write parallelised workloads, while not restricting developers from writing whatever function they want.
 
-![Parliament Architecture][/architecture.png]
+![Parliament Architecture](/architecture.png?raw=true)
 
 There are 3 main parts to this system:
 1. **Prime Minister**: Cluster master, Rust executable that communicates between the users and workers, handles fault-tolerance and task assignment.
