@@ -1,0 +1,3 @@
+"src/main/Worker": include
+"src/main/Core": include
+<*.ml> or "prog.byte": package(num)
