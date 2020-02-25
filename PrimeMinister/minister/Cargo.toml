@@ -1,0 +1,23 @@
+[package]
+
+name = "prime_minister"
+version = "0.0.1"
+authors = ["[Name REDACTED] [Email REDACTED]"]
+
+[dependencies]
+log = "0.4"
+byteorder = "1"
+lazy_static = "1.2.0"
+protobuf = { version = "~2.0", features = ["with-bytes"] }
+simple_logger = "1.0.1"
+shared = { path = "../shared" }
+chashmap = "2.2.0"
+clap = "2.32.0"
+crossbeam = "0.4"
+crossbeam-channel = "0.3"
+tokio = "0.1.19"
+tokio-threadpool = "0.1.14"
+futures = "0.1"
+
+[dev-dependencies]
+assert_cli = "0.6.3"

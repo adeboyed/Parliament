@@ -1,0 +1,20 @@
+[package]
+
+name = "consensus"
+version = "0.0.1"
+authors = ["[Name REDACTED] [Email REDACTED]"]
+
+[dependencies]
+rust-ini = "0.13"
+log = "0.4"
+byteorder = "1"
+protobuf = { version = "~2.0", features = ["with-bytes"] }
+simple_logger = "1.0.1"
+shared = { path = "../shared" }
+chashmap = "2.2.0"
+crossbeam = "0.4"
+crossbeam-channel = "0.3"
+clap = "2.32.0"
+atomic-counter = "1.0.1"
+futures = "0.1.17"
+tokio-threadpool = "0.1.10"

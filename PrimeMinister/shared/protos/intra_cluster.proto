@@ -1,0 +1,128 @@
+syntax = "proto3";
+
+// --------------------------------
+
+// WORKER -> MASTER
+message WorkerConnectionRequest {
+    string authentication = 1; // Currently not implemented but there for future 
+    int32 no_of_cores = 2;
+    int32 port = 3;
+    string ip_override = 4;
+}
+
+// MASTER -> WORKER
+message WorkerConnectionResponse {
+    string worker_id = 1;
+    /*
+        This is the identifier given to user, which they use for further requests.
+        This value is unspecified if connection_accepted = false
+    */
+    bool connection_accepted = 2;
+    // If true, the cluster has accepted the connection, however no requirement for the cluster to accept
+}
+
+// --------------------------------
+
+// MASTER -> WORKER
+message WorkerHeartbeatRequest {
+    string worker_id = 1;
+}
+
+// WORKER -> MASTER
+message WorkerHeartbeatResponse {
+    enum HeartbeatStatus {
+        AWAITING_TASK = 0;
+        PROCESSING_TASK = 1;
+        HALTED_TASK = 2;
+        CANCELLED_TASK = 3;
+    }
+    HeartbeatStatus status = 1;
+    string task_id = 2;
+}
+
+// --------------------------------
+
+// MASTER -> WORKER
+// Responds with a HeartbeatResponse
+message WorkerTaskSubmissionRequest {
+    string worker_id = 1;
+    string task_id = 2;
+    string docker_name = 3;
+    repeated bytes data_in = 4;
+    bytes closure = 5;
+    enum MapType {
+        SINGLE_IN_MULTI_OUT = 0;
+        SINGLE_IN_SINGLE_OUT = 1;
+        MULTI_IN_SINGLE_OUT = 2;
+    }
+    MapType map_type = 6;
+}
+
+// --------------------------------
+
+
+// WORKER -> MASTER
+message WorkerFinishedRequest {
+    string worker_id = 1;
+    string task_id = 2;
+
+    enum WorkerTaskStatus {
+        TASK_FINISHED = 0;
+        TASK_ERRORED = 1;
+    }
+    WorkerTaskStatus status = 3;
+    repeated bytes data_out = 4;
+}
+
+// MASTER -> WORKER
+message WorkerFinishedResponse {
+    bool response_processed = 1;
+}
+
+// --------------------------------
+
+// MASTER -> WORKER
+// Responds with a HeartbeatResponse
+message WorkerTaskCancellationRequest {
+    string worker_id = 1;
+}
+
+
+// --------------------------------
+// CONSENSUS
+
+message ConsensusRequest {
+    enum Action {
+        SET_ACTIVE = 0;
+        SET_PASSIVE = 1;
+        SHUTDOWN = 2;
+    }
+    Action action = 1;
+}
+
+message ConsensusResponse {
+
+}
+
+
+// --------------------------------
+
+message SingleWorkerMessage {
+    oneof message {
+        WorkerConnectionRequest connection_request = 1;
+        WorkerHeartbeatResponse heartbeat_response = 2;
+        WorkerFinishedRequest finished_request = 3;
+        ConsensusRequest consensus_request = 4;
+    }
+}
+
+message SingleServerMessage {
+    oneof message {
+        WorkerConnectionResponse connection_response = 1;
+        WorkerHeartbeatRequest heartbeat_request = 2;
+        WorkerTaskSubmissionRequest submission_request = 3;
+        WorkerFinishedResponse finished_response = 4;
+        WorkerTaskCancellationRequest cancellation_request = 5;
+        ConsensusResponse consensus_response = 6;
+    }
+}

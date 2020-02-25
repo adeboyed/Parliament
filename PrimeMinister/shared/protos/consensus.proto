@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+// ---
+message Consensus {
+    int32 id = 1;
+    string ip = 2;
+    int32 port = 3;
+}
+message Master {
+    int32 id = 1;
+    bool master = 2;
+    string ip = 3;
+    int32 worker_port = 4;
+    int32 user_port = 5;
+    bool active = 6;
+}
+
+// ---
+message HeartbeatRequest {
+    repeated Consensus consensuses = 1;
+    repeated Master masters = 2;
+    Consensus me = 3;
+}
+
+message HeartbeatResponse {
+    repeated Consensus consensuses = 1;
+    repeated Master masters = 2;
+}
+
+// --
+message LeaderConnectionRequest {
+    int32 port = 1;
+}
+
+message LeaderConnectionResponse {
+    int32 consensus_id = 1;
+    HeartbeatResponse heartbeat_response = 2;
+}
+
+// ---
+message ConflictingActionRequest {
+
+}
+
+message ConflictingActionResponse {
+     uint32 id = 1;
+}
+
+// ---
+message UniqueIdRequest {
+
+}
+
+message UniqueIdResponse {
+    string id = 1;
+}
+
+// ---
+message NotLeaderResponse {
+
+}
+
+// ---
+message SingleConsensusRequest {
+    oneof request {
+        LeaderConnectionRequest leader_connection_request = 1;
+        HeartbeatRequest heartbeat_request = 2;
+        ConflictingActionRequest conflicting_action_request = 3;
+        UniqueIdRequest unique_id_request = 4;
+    }
+}
+
+message SingleConsensusResponse {
+    oneof response {
+        LeaderConnectionResponse leader_connection_response = 1;
+        HeartbeatResponse heartbeat_response = 2;
+        ConflictingActionResponse conflicting_action_response = 3;
+        NotLeaderResponse not_leader_response = 4;
+        UniqueIdResponse unique_id_response = 5;
+    }
+}
+

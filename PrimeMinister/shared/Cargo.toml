@@ -1,0 +1,17 @@
+[package]
+name = "shared"
+version = "0.1.0"
+authors = ["[Name REDACTED] [Email REDACTED]"]
+edition = "2018"
+
+
+[dependencies]
+rand = "0.6.1"
+protobuf = { version = "~2.0", features = ["with-bytes"] }
+log = "0.4"
+byteorder = "1"
+tokio = "0.1.19"
+futures = "0.1"
+
+[dev-dependencies]
+protoc-rust = "2.0"

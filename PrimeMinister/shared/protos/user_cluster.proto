@@ -1,0 +1,155 @@
+syntax = "proto3";
+
+// Data.proto
+message DataRetrievalRequest {
+    string user_id = 1;
+    int32 job_id = 2;
+}
+
+message DataRetrievalResponse {
+    repeated bytes bytes = 1;
+}
+
+// Job.proto
+
+message InputAction {
+    repeated bytes data_loc_in = 1;
+    // This is marshalled data that is going to do passed directly to the user.
+}
+
+message MapAction {
+    enum MapType {
+        SINGLE_IN_MULTI_OUT = 0;
+        SINGLE_IN_SINGLE_OUT = 1;
+        MULTI_IN_SINGLE_OUT = 2;
+    }
+    MapType mapType = 1;
+
+    int32 job_id_in = 2;
+    bytes function_closure = 3;
+}
+
+message Job {
+    int32 job_id = 1;
+    //Needs too be user_id unique, so you can track the status of a job.
+
+    oneof action {
+        InputAction input = 4;
+        MapAction map = 5;
+    }
+}
+
+message JobSubmission {
+    string user_id = 1;
+    // user_id from ConnectionResponse
+
+    repeated Job jobs = 2;
+    // Already paritioned jobs.
+}
+
+message JobSubmissionResponse {
+    bool job_accepted = 1;
+    // This indicates whether the job has been accepted by the cluster
+}
+
+// Create_connection.proto
+
+message CreateConnectionRequest {
+    string authentication = 1;
+    string docker_name = 2;
+}
+message CreateConnectionResponse {
+    string user_id = 1;
+    /*
+        This is the identifer given to user, which they use for further requests.
+        This value is unspecfied if connection_accepted = false
+    */
+    bool connection_accepted = 2;
+    // If true, the cluster has accepted the connection, however no requirement for the cluster to accept
+}
+
+// Status.proto
+
+message JobStatusRequest {
+    string user_id = 1;
+    repeated int32 job_ids = 2;
+}
+
+message JobStatus {
+    int32 job_id = 2;
+    enum Status {
+        BLOCKED = 0;
+        QUEUED = 1;
+        RUNNING = 2;
+        COMPLETED = 4;
+        HALTED = 5;
+        CANCELLED = 6;
+    }
+    Status status = 3;
+}
+
+message JobStatusResponse {
+    repeated JobStatus job_statuses = 1;
+}
+
+// Worker.proto
+
+message WorkerInput {
+    bytes function_closure = 1;
+    enum MapType {
+        SINGLE_IN_MULTI_OUT = 0;
+        SINGLE_IN_SINGLE_OUT = 1;
+        MULTI_IN_SINGLE_OUT = 2;
+    }
+    MapType map_type = 2;
+    repeated bytes datapack = 3;
+}
+
+message WorkerOutput {
+    repeated bytes datapacks = 3;
+}
+
+// Connection.proto
+
+message ConnectionRequest {
+    string user_id = 1;
+    enum Action {
+        HEARTBEAT = 0;
+        CLOSE_CONNECTION = 1;
+    }
+    Action action = 2;
+}
+
+message ConnectionResponse {
+    bool request_accepted  = 1;
+}
+
+message ServerMessage {
+    enum Action {
+        USER_TIMEOUT = 0;
+        MISSING_JOBS = 1;
+        INTERNAL_SERVER_ERROR = 2;
+    }
+    Action action = 1;
+}
+
+message SingleUserRequest {
+    oneof request {
+        CreateConnectionRequest create_connection_request = 1;
+        ConnectionRequest connection_request = 2;
+        JobSubmission job_submission = 3;
+        DataRetrievalRequest data_retrieval_request = 4;
+        JobStatusRequest job_status_request = 5;
+    }
+}
+
+message SingleUserResponse {
+    oneof response {
+        CreateConnectionResponse create_connection_response = 1;
+        JobSubmissionResponse job_submission_response = 2;
+        DataRetrievalResponse data_retrieval_response = 3;
+        JobStatusResponse job_status_response = 4;
+        ConnectionResponse connection_response = 5;
+        ServerMessage server_message = 6;
+    }
+}
