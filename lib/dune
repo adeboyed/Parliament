@@ -1,0 +1,4 @@
+(library
+ (name        parliament)
+  (public_name parliament)
+  (libraries core str parliament_proto))

@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+/*
+    Types of jobs:
+        SingleInSingleOut: Map Job
+        SingleInVariableOut: Split Job
+        VariableInSingleOut: Reduce Job
+*/
+
+message InputAction {
+    repeated bytes data_loc_in = 1;
+    // This is marshalled data that is going to do passed directly to the user.
+}
+
+message MapAction {
+    enum MapType {
+        SINGLE_IN_MULTI_OUT = 0;
+        SINGLE_IN_SINGLE_OUT = 1;
+        MULTI_IN_SINGLE_OUT = 2;
+    }
+    MapType mapType = 1;
+
+    int32 job_id_in = 2;
+    bytes function_closure = 3;
+}
+
+message Job {
+    int32 job_id = 1;
+    //Needs too be user_id unique, so you can track the status of a job.
+
+    oneof action {
+        InputAction input = 4;
+        MapAction map = 5;
+    }
+}
+
+message JobSubmission {
+    string user_id = 1;
+    // user_id from ConnectionResponse
+
+    repeated Job jobs = 2;
+    // Already paritioned jobs.
+}
+
+message JobSubmissionResponse {
+    bool job_accepted = 1;
+    // This indicates whether the job has been accepted by the cluster
+}

@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+message WorkerInputRequest {
+    
+}
+
+message WorkerInputResponse {
+    bytes function_closure = 1;
+    enum MapType {
+        SINGLE_IN_VARIABLE_OUT = 0;
+        SINGLE_IN_SINGLE_OUT = 1;
+        VARIABLE_IN_SINGLE_OUT = 2;
+    }
+    MapType map_type = 2;
+    repeated bytes datapacks = 3;
+}
+
+
+message WorkerOutputRequest {
+    repeated bytes datapacks = 1;
+}
+
+message WorkerOutputResponse {
+
+}
+
+message SingleWorkerRequest {
+    oneof request {
+        WorkerInputRequest input_request = 1;
+        WorkerOutputRequest output_request = 2;
+    }
+}
+
+message SingleWorkerResponse {
+    oneof response {
+        WorkerInputResponse input_response = 1;
+        WorkerOutputResponse output_response = 2;
+    }
+}

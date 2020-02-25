@@ -1,0 +1,3 @@
+(test
+ (name connection_test)
+ (libraries ounit parliament))
