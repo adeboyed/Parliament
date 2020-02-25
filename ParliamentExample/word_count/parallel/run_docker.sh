@@ -1,0 +1,1 @@
+docker run --rm adeboyed/parliament -h host.docker.internal -p 1241 -d adeboyed/parliament:latest -a files:files:10000000

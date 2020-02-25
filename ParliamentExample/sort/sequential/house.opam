@@ -1,0 +1,11 @@
+opam-version: "2"
+version: "1.0"
+maintainer: "david.adeboye@outlook.com"
+authors: ["David Adeboye"]
+homepage: "https://github.com/adeboyed/ParliamentExample"
+bug-reports: "https://github.com/adeboyed/ParliamentExample/issues"
+dev-repo: "https://github.com/adeboyed/ParliamentExample.git"
+license: "Apache-2.0"
+build: [
+  ["jbuilder" "build" "--only" "house" "--root" "." "-j" jobs "@install"]
+]

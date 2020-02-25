@@ -1,0 +1,4 @@
+(executable
+ (public_name house)
+ (name house)
+ (libraries parliament core uutf uucp))
