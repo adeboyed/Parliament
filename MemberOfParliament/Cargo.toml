@@ -1,0 +1,23 @@
+[package]
+
+name = "member_of_parliament"
+version = "0.0.1"
+authors = [ "[NAME REDACTED] [EMAIL REDACTED]" ]
+
+[dependencies]
+protobuf = { version = "~2.0", features = ["with-bytes"] }
+simple_logger = "1.0.1"
+log = "0.4"
+byteorder = "1"
+rand = "0.6.1"
+crossbeam-channel = "0.3"
+clap = "2.32.0"
+man = "0.1.1"
+shiplift = "0.4"
+tokio = "0.1.13"
+
+[dev-dependencies]
+protoc-rust = "2.0"
+assert_cli = "0.6.3"
+timebomb = "0.1.2"
+

@@ -1,0 +1,12 @@
+language: rust
+rust:
+  - 1.31.0
+
+cache: cargo
+
+script:
+  - rustup self update
+  - rustup toolchain uninstall stable 
+  - rustup toolchain install stable
+  - cargo build --verbose --all
+  - cargo test --verbose --all
